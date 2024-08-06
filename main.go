@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -9,47 +8,105 @@ import (
 ) 
 type Data struct {
 	Id 			int `json:"id"`
-	Name 		string `json:"name" form:"name"`
-	Email 		string `json:"email" form:"email"`
-	Password 	string `json:"-" form:"password"`
+	Name 		string `json:"name" form:"name" binding:"required"`
+	Email 		string `json:"email" form:"email" binding:"required,email"`
+	Password 	string `json:"-" form:"password" binding:"required,min=8"`
 }
 
 type Users struct {
 	Success bool `json:"success"`
 	Message string `json:"message"`
-	Results interface{} `json:"results"`
+	Results interface{} `json:"results,omitempty"`
 }
 
 func main() {
-	response := []Data {}
+	response := []Data {
+		{
+			Id: 1,
+			Name: "Admin",
+			Email: "admin@mail.com",
+			Password: "1234",
+		},
+	}
 
 	r := gin.Default()
 
 	r.Use(corsMiddleware())
 
-	r.GET("/users", func (c *gin.Context){
+	r.GET("/users", func (c *gin.Context){ 
 		c.JSON(http.StatusOK, Users{
 			Success: true,
 			Message: "OK",
 			Results : response,
 		})
 	})
+	r.GET("/users/:id", func(c *gin.Context) {
+		id, _ := strconv.Atoi(c.Param("id"))
+
+		conditions := false 
+		index := -1
+
+		for point, item := range response {
+			if id == item.Id {
+				conditions = true
+				index = point
+			}			
+		}
+
+		if conditions {
+			c.JSON(http.StatusOK, Users{
+				Success: true,
+				Message: "Proceed the Data",
+				Results: response[index],
+			})
+		} else {
+			c.JSON(http.StatusNotFound, Users{
+				Success: false,
+				Message: "Data Not Found",
+			})
+		}
+	})
 	r.POST("/users", func(c *gin.Context) {
 		user := Data{}
-		c.Bind(&user)
-		user.Id = len(response) + 1
-		response = append(response, user)
-		c.JSON(http.StatusOK, Users{
-			Success: true,
-			Message: "Create user success",
-			Results: user,
-		})
+		err := c.Bind(&user)
+
+		numb := 0 
+		for _, v := range response {
+			numb = v.Id
+		}
+		user.Id = numb + 1
+		
+		condition := true
+		for _, v := range response {
+			if v.Email == user.Email {
+				condition = false
+			}
+		}
+		if err == nil {
+			if condition {
+				response = append(response, user)
+				c.JSON(http.StatusOK, Users{
+					Success: true,
+					Message: "Create user success",
+					Results: user,
+				})
+			} else {
+				c.JSON(http.StatusUnauthorized, Users{
+					Success: false,
+					Message: "Email already exists",
+				})
+			}
+		} else {
+			c.JSON(http.StatusBadRequest, Users{
+				Success: false,
+				Message: "Data was prohibited",
+			})
+		}
 	})
 	r.POST("/auth/login", func(c *gin.Context) {
 		user := Data{}
 		c.Bind(&user)
 		email := user.Email
-		fmt.Println(email)
 		searchData := true 
 		if searchData {
 			for searchData {
@@ -91,7 +148,7 @@ func main() {
 			response[selected].Password = form.Password
 			c.JSON(http.StatusOK, Users{
 				Success: true,
-				Message: "Deleted data success",
+				Message: "Data was updated",
 			})
 			} else {
 				c.JSON(http.StatusNotFound, Users{
@@ -105,7 +162,6 @@ func main() {
 			
 		selected := -1
 		
-		fmt.Println(selected)
 		for index, item := range response {
 			if item.Id == id {
 				selected = index
@@ -130,7 +186,6 @@ func main() {
 			})
 		}
 		})
-		
 	r.Run("localhost:8888")
 }
 
