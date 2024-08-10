@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -37,9 +38,24 @@ func DetailUser (c *gin.Context) {
 } 
 func CreateUser (c *gin.Context) {
 	user := models.Users{}
-	c.Bind(&user)
+
+	if err := c.ShouldBind(&user)
+	err != nil {
+		c.JSON(http.StatusNotFound, lib.Users{
+			Success: false,
+			Message: "data not found",
+		})
+		return
+	}
 
 	createData := models.CreateNewUser(user)
+	if createData == user {
+		c.JSON(http.StatusNotFound, lib.Users{
+			Success: false,
+			Message: "user not process",
+		})
+		return
+	}
 	c.JSON(http.StatusOK, lib.Users{
 		Success: true,
 		Message: "Create data success",
@@ -47,41 +63,64 @@ func CreateUser (c *gin.Context) {
 	})
 }
 func UpdateUser (c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
-	selected := models.Users{}
+	param := c.Param("id")
+    id, _  := strconv.Atoi(param)
+    data := models.FindAllUsers()
 
-	c.Bind(&selected)
+    user := models.Users{}
+    err := c.Bind(&user)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
 
-	editData := models.EditTheUser(selected, id)
+    result := models.Users{}
+    for _, v := range data {
+        if v.Id == id {
+            result = v
+        }
+    }
 
-	if editData.Id != 0 {
-		c.JSON(http.StatusOK, lib.Users{
-			Success: true,
-			Message: "Data was updated",
-			Results: editData,
+    if result.Id == 0 {
+        c.JSON(http.StatusNotFound, lib.Users{
+            Success: false,
+            Message: "Cannot find the user with id:" + param,
+        })
+        return
+    }
+
+    models.EditTheUser(user.Email, user.Username, user.Password, param)
+
+    c.JSON(http.StatusOK, lib.Users{
+        Success: true,
+        Message: "Success editing user with id: " + param,
+        Results: user,
+    })
+}
+func DeleteUser (ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	selectUser := models.FindUserId(id)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadGateway, lib.Users{
+			Success: false,
+			Message: "Data not found",
 		})
-	} else {
-		c.JSON(http.StatusNotFound, lib.Users{
+		return	
+	}
+
+	err = models.RemoveUser(models.Users{}, id)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, lib.Users{
 			Success: false,
 			Message: "Id not found",
 		})
+		return
 	}
-}
-func DeleteUser (c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
 
-	data := models.RemoveUser(id)
-
-	if data.Id != 0 {
-		c.JSON(http.StatusOK, lib.Users {
-			Success: true,
-			Message: "Success deleted data",
-			Results: data,
-		})
-	} else {
-		c.JSON(http.StatusNotFound, lib.Users {
-			Success: false,
-			Message: "Success deleted data",
-		})
-	}
+	ctx.JSON(http.StatusOK, lib.Users{
+		Success: true,
+		Message: "Successfully deleted the data!",
+		Results: selectUser,
+	})	
 }

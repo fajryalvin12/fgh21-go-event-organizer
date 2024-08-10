@@ -1,80 +1,130 @@
 package models
 
+import (
+	"context"
+	"fmt"
+
+	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
+	"github.com/jackc/pgx/v5"
+)
+
 type Users struct {
 	Id       int    `json:"id"`
-	Name     string `json:"name" form:"name" binding:"required"`
 	Email    string `json:"email" form:"email" binding:"required,email"`
+	Username string `json:"username" form:"username" binding:"required"`
 	Password string `json:"-" form:"password" binding:"required,min=8"`
 }
 
-var Response = []Users{
-	{
-		Id:       1,
-		Name:     "Admin",
-		Email:    "admin@mail.com",
-		Password: "1234",
-	},
-}
-
 func FindAllUsers() []Users {
-	return Response
+	db := lib.DB()
+	defer db.Close(context.Background())
+	sql := `select * from "users" order by "id" asc `
+	rows, _ := db.Query(
+		context.Background(),
+	 	sql,
+	)
+
+	users, _ := pgx.CollectRows(rows, pgx.RowToStructByPos[Users])
+
+	return users
 }
 func FindUserId(id int) Users {
 
-	users := Response
-	selectedUser := Users{}
-
-	for _, item := range users {
-		if id == item.Id {
-			selectedUser = item
-		}
+	db := lib.DB()
+	defer db.Close(context.Background())
+	sql := `select * from "users" where "id" = $1`
+	rows, err := db.Query(
+		context.Background(),
+	 	sql,
+		id,
+	)
+	if err != nil {
+		fmt.Println(err)
 	}
 
-	return selectedUser
+	users, err := pgx.CollectRows(rows, pgx.RowToStructByPos[Users])
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	user := Users{}
+	for _, val := range users {
+		if val.Id == id{
+			user = val
+		}
+	}
+	return user
 }
 func CreateNewUser(data Users) Users {
-	id := 0
+	db := lib.DB()
+	defer db.Close(context.Background())
+	fmt.Println(data)
+	data.Password = lib.Encrypt(data.Password)
+	sql := `insert into "users" ("email", "password", "username") values ($1, $2, $3) returning "id", "email", "password", "username"`
 
-	for _, v := range Response {
-		id = v.Id
-	}
-	data.Id = id + 1
-	Response = append(Response, data)
-	return data
+	row := db.QueryRow(
+		context.Background(), sql, data.Email, data.Password, data.Username)
+
+	var results Users
+	row.Scan(
+		&results.Id,
+		&results.Email,
+		&results.Password,
+		&results.Username,
+	)
+	fmt.Println(results)
+
+	return results
 }
-func EditTheUser(data Users, id int) Users {
-	num := -1
+func EditTheUser(email string, username string, password string, id string) {
+    db := lib.DB()
+    defer db.Close(context.Background())
 
-	for index, v := range Response {
-		if id == v.Id {
-			num = index
+    dataSql := `update "users" set (email , username, password) = ($1, $2, $3) where id=$4`
+
+    db.Exec(context.Background(), dataSql, email, username, password, id)
+}
+func RemoveUser(data Users, id int) error {
+	db := lib.DB()
+	defer db.Close(context.Background())
+
+	delete, err := db.Exec(
+		context.Background(),
+		`delete from "users" where id=$1`,
+		id,
+	)
+
+	if err != nil {
+		return fmt.Errorf("failed to delete data")
+	}
+	if delete.RowsAffected() == 0 {
+		return fmt.Errorf("data not found")
+	} 
+
+	return nil
+}
+func FindUserEmail(email string) Users {
+
+	db := lib.DB()
+	defer db.Close(context.Background())
+	rows, _ := db.Query(
+		context.Background(),
+	 	`select * from "users" where "email" = $1`,
+		email,
+	)
+
+	users, err := pgx.CollectRows(rows, pgx.RowToStructByPos[Users])
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	user := Users{}
+	for _, val := range users {
+		if val.Email == email{
+			user = val
 		}
 	}
-
-	if num != 0 {
-		Response[num].Name = data.Name
-		Response[num].Email = data.Email
-		Response[num].Password = data.Password
-		Response[num].Id = data.Id
-	}
-
-	return data
-}
-func RemoveUser(id int) Users {
-	index := -1
-	userRemoved := Users{}
-
-	for idx, v := range Response {
-		if v.Id == id {
-			index = idx
-			userRemoved = v
-		}
-	}
-	sliceLeft := Response[:index]
-	sliceRight := Response[index+1:]
-	if userRemoved.Id != 0 {
-		Response = append(sliceLeft, sliceRight...)
-	}
-
-	return userRemoved
+	return user
 }
