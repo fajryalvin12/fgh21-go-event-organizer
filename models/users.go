@@ -33,14 +33,14 @@ func FindUserId(id int) Users {
 	db := lib.DB()
 	defer db.Close(context.Background())
 	sql := `select * from "users" where "id" = $1`
-	rows, err := db.Query(
+	rows, _ := db.Query(
 		context.Background(),
 	 	sql,
 		id,
 	)
-	if err != nil {
-		fmt.Println(err)
-	}
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 
 	users, err := pgx.CollectRows(rows, pgx.RowToStructByPos[Users])
 
@@ -56,26 +56,26 @@ func FindUserId(id int) Users {
 	}
 	return user
 }
-func CreateNewUser(data Users) Users {
+func CreateNewUser(data Users) (Users, error) {
 	db := lib.DB()
 	defer db.Close(context.Background())
 	fmt.Println(data)
 	data.Password = lib.Encrypt(data.Password)
-	sql := `insert into "users" ("email", "password", "username") values ($1, $2, $3) returning "id", "email", "password", "username"`
 
-	row := db.QueryRow(
-		context.Background(), sql, data.Email, data.Password, data.Username)
+	sql := `insert into "users" ("email", "password", "username") values ($1, $2, $3)`
+	_, err := db.Exec(context.Background(), sql, data.Email, data.Password, data.Username)
 
-	var results Users
-	row.Scan(
-		&results.Id,
-		&results.Email,
-		&results.Password,
-		&results.Username,
-	)
-	fmt.Println(results)
+	if err != nil {
+		fmt.Println(err)
+	}
+	users := FindAllUsers()
+	id := 0
+	for _, v := range users {
+		 id = v.Id
+	}
 
-	return results
+	data.Id = id
+	return data, err
 }
 func EditTheUser(email string, username string, password string, id string) {
     db := lib.DB()

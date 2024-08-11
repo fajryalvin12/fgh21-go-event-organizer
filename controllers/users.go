@@ -39,27 +39,18 @@ func DetailUser (c *gin.Context) {
 func CreateUser (c *gin.Context) {
 	user := models.Users{}
 
-	if err := c.ShouldBind(&user)
-	err != nil {
-		c.JSON(http.StatusNotFound, lib.Users{
-			Success: false,
-			Message: "data not found",
-		})
+	err := c.Bind(&user)
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
-	createData := models.CreateNewUser(user)
-	if createData == user {
-		c.JSON(http.StatusNotFound, lib.Users{
-			Success: false,
-			Message: "user not process",
-		})
-		return
-	}
+	data, _ := models.CreateNewUser(user)
+
 	c.JSON(http.StatusOK, lib.Users{
 		Success: true,
 		Message: "Create data success",
-		Results: createData,
+		Results: data,
 	})
 }
 func UpdateUser (c *gin.Context) {

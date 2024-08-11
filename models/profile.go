@@ -5,13 +5,8 @@ import (
 	"fmt"
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
+	"github.com/jackc/pgx/v5"
 )
-type JoinProfile struct {
-	Id 				int `json:"id"`
-	Email 			string `json:"email" form:"email" db:"email"`
-	FullName 		string `json:"fullName" form:"fullName" db:"full_name"`
-}
-
 type Profile struct {
 	Id 				int `json:"id" db:"id"`
 	Picture 		*string `json:"picture" db:"picture"`
@@ -24,67 +19,66 @@ type Profile struct {
 	UserId 			int `json:"userId" db:"user_id"`
 }
 
-func CreateProfile(data Profile) (JoinProfile, error) {
+type JoinProfile struct {
+	Id 				int `json:"id"`
+	FullName 		string `json:"fullName"`
+	Email 			string `json:"email"`
+	Gender 			int `json:"gender,omitempty"`
+	PhoneNumber 	*string `json:"phoneNumber,omitempty"`
+	Profession		*string `json:"profession,omitempty"`
+	BirthDate 		*string `json:"birthDate,omitempty"`
+	Nationality		int `json:"nationality,omitempty"`
+}
+
+func CreateProfile(data Profile) JoinProfile {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
 	sqlProfile := `insert into "profile" 
-	("picture", 
-	"full_name", 
-	"birth_date", 
-	"gender", 
-	"phone_number",
-	"profession", 
-	"nationality_id", 
-	"user_id") 
+	("picture","full_name","birth_date","gender","phone_number","profession", "nationality_id", "user_id") 
 	values 
-	($1, $2, $3, $4, $5, $6, $7, $8) 
-	returning 
-	"picture", 
-	"full_name", 
-	"birth_date", 
-	"gender", 
-	"phone_number", 
-	"profession" 
-	"nationality_id", 
-	"user_id"`
+	($1, $2, $3, $4, $5, $6, $7, $8)`
 
-	_, err := db.Exec(
-			context.Background(), 
-			sqlProfile, 
-			data.Picture, 
-			data.FullName, 
-			data.BirthDate, 
-			data.Gender, 
-			data.PhoneNumber, 
-			data.Profession, 
-			data.NationalityId, 
-			data.UserId,
-		)
-
+	_, err := db.Exec(context.Background(), sqlProfile, data.Picture, data.FullName, data.BirthDate, data.Gender, data.PhoneNumber, data.Profession, data.NationalityId, data.UserId)
+	
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	joinSql := `select "u"."id", "p"."email", "p"."full_name" 
-	from "profile" "p" 
-	join "users" "u" 
-	on "p"."users_id" = "u"."id"`
+	result := JoinProfile{}
+
+	result.Id = data.UserId
+	result.FullName = data.FullName
+
+	return result
+}
+func ListAllProfile ()[]JoinProfile {
+	db := lib.DB()
+	defer db.Close(context.Background())
+
+	joinSql := `select "u"."id", "u"."email", "p"."full_name", "u"."username", "p"."gender", "p"."phone_number","p"."profession", "p"."nationality_id", "p"."birth_date"  
+	from "users" "u" 
+	join "profile" "p"
+	on "u"."id" = "p"."user_id"`
 		
-	joinRow:= db.QueryRow(
+	rows, _:= db.Query(
 		context.Background(),
 		joinSql,
 		)
-
-	var results JoinProfile
-	joinRow.Scan(
-		&results.Id,
-		&results.FullName,
-		&results.Email,
-	)
-	return results, err
+	
+	events, _ := pgx.CollectRows(rows, pgx.RowToStructByPos[JoinProfile])
+	return events
 }
-func FindProfileByUserId(id int) {
+func FindProfileByUserId(id int) JoinProfile {
 	db := lib.DB()
 	defer db.Close(context.Background())
+
+	var result JoinProfile
+	for _, v := range ListAllProfile() {
+		if v.Id == id {
+			result = v
+		}
+	}
+
+	return result
 }
