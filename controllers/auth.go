@@ -13,10 +13,10 @@ type Token struct {
 	JWToken string `json:"token"`
 }
 type FormRegister struct {
-	FullName		string `form:"fullName"`
-	Email			string `form:"email"`
-	Password		string `form:"password"`
-	ConfirmPassword	string `form:"confirmPassword" binding:"eqfield=Password"`
+	FullName		string `json:"fullName" form:"fullName"`
+	Email			string `json:"email" form:"email"`
+	Password		string `json:"password" form:"password"`
+	ConfirmPassword	string `json:"confirmPassword" form:"confirmPassword" binding:"eqfield=Password"`
 }
 
 func AuthLogin(ctx *gin.Context) {

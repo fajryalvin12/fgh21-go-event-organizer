@@ -8,16 +8,16 @@ import (
 )
 type JoinProfile struct {
 	Id 				int `json:"id"`
-	Email 			string `json:"email" db:"email"`
-	FullName 		string `json:"fullName" db:"full_name"`
+	Email 			string `json:"email" form:"email" db:"email"`
+	FullName 		string `json:"fullName" form:"fullName" db:"full_name"`
 }
 
 type Profile struct {
-	Id 				int `json:"id"`
+	Id 				int `json:"id" db:"id"`
 	Picture 		*string `json:"picture" db:"picture"`
 	FullName 		string `json:"fullName" db:"full_name"`
 	BirthDate 		*string `json:"birthDate" db:"birth_date"`
-	Gender 			string `json:"gender" db:"gender"`
+	Gender 			int `json:"gender" db:"gender"`
 	PhoneNumber 	*string `json:"phoneNumber" db:"phone_number"`
 	Profession		*string `json:"profession" db:"profession"`
 	NationalityId 	*int `json:"nationalityId" db:"nationality_id"`
@@ -28,10 +28,39 @@ func CreateProfile(data Profile) (JoinProfile, error) {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
-	sqlProfile := `insert into "profile" ("picture", "full_name", "birth_date", "gender", "phone_number","profession", "nationality_id", "user_id") values ($1, $2, $3, $4, $5, $6, $7, $8) returning "picture", "full_name", "birth_date", "gender", "phone_number", "profession" "nationality_id", "user_id"`
+	sqlProfile := `insert into "profile" 
+	("picture", 
+	"full_name", 
+	"birth_date", 
+	"gender", 
+	"phone_number",
+	"profession", 
+	"nationality_id", 
+	"user_id") 
+	values 
+	($1, $2, $3, $4, $5, $6, $7, $8) 
+	returning 
+	"picture", 
+	"full_name", 
+	"birth_date", 
+	"gender", 
+	"phone_number", 
+	"profession" 
+	"nationality_id", 
+	"user_id"`
 
 	_, err := db.Exec(
-			context.Background(), sqlProfile, data.Picture, data.FullName, data.BirthDate, data.Gender, data.PhoneNumber, data.Profession, data.NationalityId, data.UserId)
+			context.Background(), 
+			sqlProfile, 
+			data.Picture, 
+			data.FullName, 
+			data.BirthDate, 
+			data.Gender, 
+			data.PhoneNumber, 
+			data.Profession, 
+			data.NationalityId, 
+			data.UserId,
+		)
 
 	if err != nil {
 		fmt.Println(err)

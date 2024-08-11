@@ -11,14 +11,14 @@ import (
 type Users struct {
 	Id       int    `json:"id"`
 	Email    string `json:"email" form:"email" binding:"required,email"`
-	Username string `json:"username" form:"username" binding:"required"`
 	Password string `json:"-" form:"password" binding:"required,min=8"`
+	Username string `json:"username" form:"username" binding:"required"`
 }
 
 func FindAllUsers() []Users {
 	db := lib.DB()
 	defer db.Close(context.Background())
-	sql := `select * from "users" order by "id" asc `
+	sql := `select "id", "email", "password", "username" from "users" order by "id" asc `
 	rows, _ := db.Query(
 		context.Background(),
 	 	sql,
