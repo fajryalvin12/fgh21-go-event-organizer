@@ -80,7 +80,8 @@ func UpdateUser (c *gin.Context) {
         return
     }
 
-    models.EditTheUser(user.Email, user.Username, user.Password, param)
+
+    models.EditTheUser(user.Email, *user.Username, user.Password, param)
 
     c.JSON(http.StatusOK, lib.Users{
         Success: true,

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
@@ -60,14 +61,17 @@ func AuthRegister (ctx *gin.Context) {
 	user.Email = form.Email
 	user.Password = form.Password
 	profile.FullName = form.FullName
-	createUser, _ := models.CreateNewUser(user)
+	createUser, err := models.CreateNewUser(user)
+	if err != nil {
+		fmt.Println("Email already exist")
+	}
 
 	userId := createUser.Id
 	profile.UserId = userId
 
 	createProfile := models.CreateProfile(profile)
 	createProfile.Email = form.Email
-	createProfile.FullName = form.FullName
+	createProfile.FullName = form.FullName 
 
 	ctx.JSON(http.StatusOK, lib.Users{
 		Success: true,

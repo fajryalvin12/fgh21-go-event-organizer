@@ -22,11 +22,12 @@ type Profile struct {
 type JoinProfile struct {
 	Id 				int `json:"id"`
 	FullName 		string `json:"fullName"`
+	Username 		*string `json:"username,omitempty"`
 	Email 			string `json:"email"`
 	Gender 			int `json:"gender,omitempty"`
-	PhoneNumber 	*string `json:"phoneNumber,omitempty"`
-	Profession		*string `json:"profession,omitempty"`
-	BirthDate 		*string `json:"birthDate,omitempty"`
+	PhoneNumber 	string `json:"phoneNumber,omitempty"`
+	Profession		string `json:"profession,omitempty"`
+	BirthDate 		string `json:"birthDate,omitempty"`
 	Nationality		int `json:"nationality,omitempty"`
 }
 
@@ -49,6 +50,8 @@ func CreateProfile(data Profile) JoinProfile {
 
 	result.Id = data.UserId
 	result.FullName = data.FullName
+	fmt.Println(result.Id)
+	fmt.Println(result.FullName)
 
 	return result
 }

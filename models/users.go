@@ -12,7 +12,7 @@ type Users struct {
 	Id       int    `json:"id"`
 	Email    string `json:"email" form:"email" binding:"required,email"`
 	Password string `json:"-" form:"password" binding:"required,min=8"`
-	Username string `json:"username" form:"username" binding:"required"`
+	Username *string `json:"username,omitempty" form:"username" binding:"required"`
 }
 
 func FindAllUsers() []Users {

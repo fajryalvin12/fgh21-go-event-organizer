@@ -11,6 +11,11 @@ import (
 
 func ListEvents(ctx *gin.Context) {
 	events := models.FindAllEvents()
+	// newEvent := models.Events{}
+
+	// createdBy, _ := ctx.Keys["userId"].(int)
+	// newEvent.CreatedBy = &createdBy
+
 	ctx.JSON(http.StatusOK, lib.Users{
 		Success: true,
 		Message: "List all events",
@@ -37,8 +42,11 @@ func DetailEvent (ctx *gin.Context) {
 func CreateEvent (ctx *gin.Context) {
 	newEvent := models.Events{}
 	ctx.Bind(&newEvent)
-	id, _ := ctx.Get("userId")
-	createdBy,_ := id.(int)
+	// id, _ := ctx.Get("userId")
+	// createdBy,_ := id.(int)
+	// newEvent.CreatedBy = &createdBy
+
+	createdBy, _ := ctx.Keys["userId"].(int)
 	newEvent.CreatedBy = &createdBy
 
 	result := models.CreateNewEvent(newEvent)
