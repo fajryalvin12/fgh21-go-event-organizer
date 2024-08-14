@@ -58,11 +58,6 @@ func CreateNewEvent(data Events) Events {
 	($1, $2, $3, $4)`
 	db.Exec(context.Background(), sql, data.Image, data.Title, data.Date, data.Description)
 
-	id := 0 
-	for _, v := range FindAllUsers() {
-		id = v.Id
-	}
-	data.Id = id
 	return data
 }
 func EditTheEvent(data Events, id int) Events {

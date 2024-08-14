@@ -10,10 +10,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
 func ListAllUsers(c *gin.Context) {	
-	users := models.FindAllUsers()
-	c.JSON(http.StatusOK, lib.Users{
+	search := c.Query("search")
+	limit, _ := strconv.Atoi(c.Query("limit"))
+	page, _ := strconv.Atoi(c.Query("page"))
+
+	if page == 0 {
+		page = (page - 1) * limit
+	}
+
+	users := models.FindAllUsers(search, limit, page)
+
+	c.JSON(http.StatusOK, lib.Response{
 		Success: true,
 		Message: "OK",
 		Results: users,
@@ -24,13 +32,13 @@ func DetailUser (c *gin.Context) {
 	selected := models.FindUserId(id)
 
 	if selected.Id != 0 {
-		c.JSON(http.StatusOK, lib.Users{
+		c.JSON(http.StatusOK, lib.Response{
 			Success: true,
 			Message: "Detail User",
 			Results: selected,
 		})
 	} else {
-		c.JSON(http.StatusNotFound, lib.Users{
+		c.JSON(http.StatusNotFound, lib.Response{
 			Success: false,
 			Message: "Data not found",
 		})
@@ -45,9 +53,9 @@ func CreateUser (c *gin.Context) {
 		return
 	}
 
-	data, _ := models.CreateNewUser(user)
+	data := models.CreateNewUser(user)
 
-	c.JSON(http.StatusOK, lib.Users{
+	c.JSON(http.StatusOK, lib.Response{
 		Success: true,
 		Message: "Create data success",
 		Results: data,
@@ -56,7 +64,11 @@ func CreateUser (c *gin.Context) {
 func UpdateUser (c *gin.Context) {
 	param := c.Param("id")
     id, _  := strconv.Atoi(param)
-    data := models.FindAllUsers()
+	search := c.Query("search")
+	limit, _ := strconv.Atoi(c.Query("limit"))
+	page, _ := strconv.Atoi(c.Query("page"))
+
+    data := models.FindAllUsers(search, limit, page)
 
     user := models.Users{}
     err := c.Bind(&user)
@@ -73,7 +85,7 @@ func UpdateUser (c *gin.Context) {
     }
 
     if result.Id == 0 {
-        c.JSON(http.StatusNotFound, lib.Users{
+        c.JSON(http.StatusNotFound, lib.Response{
             Success: false,
             Message: "Cannot find the user with id:" + param,
         })
@@ -83,7 +95,7 @@ func UpdateUser (c *gin.Context) {
 
     models.EditTheUser(user.Email, *user.Username, user.Password, param)
 
-    c.JSON(http.StatusOK, lib.Users{
+    c.JSON(http.StatusOK, lib.Response{
         Success: true,
         Message: "Success editing user with id: " + param,
         Results: user,
@@ -94,7 +106,7 @@ func DeleteUser (ctx *gin.Context) {
 	selectUser := models.FindUserId(id)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadGateway, lib.Users{
+		ctx.JSON(http.StatusBadGateway, lib.Response{
 			Success: false,
 			Message: "Data not found",
 		})
@@ -103,14 +115,14 @@ func DeleteUser (ctx *gin.Context) {
 
 	err = models.RemoveUser(models.Users{}, id)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, lib.Users{
+		ctx.JSON(http.StatusBadRequest, lib.Response{
 			Success: false,
 			Message: "Id not found",
 		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, lib.Users{
+	ctx.JSON(http.StatusOK, lib.Response{
 		Success: true,
 		Message: "Successfully deleted the data!",
 		Results: selectUser,

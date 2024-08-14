@@ -11,12 +11,8 @@ import (
 
 func ListEvents(ctx *gin.Context) {
 	events := models.FindAllEvents()
-	// newEvent := models.Events{}
 
-	// createdBy, _ := ctx.Keys["userId"].(int)
-	// newEvent.CreatedBy = &createdBy
-
-	ctx.JSON(http.StatusOK, lib.Users{
+	ctx.JSON(http.StatusOK, lib.Response{
 		Success: true,
 		Message: "List all events",
 		Results: events,
@@ -27,13 +23,13 @@ func DetailEvent (ctx *gin.Context) {
 	selected := models.FindEventById(id)
 
 	if selected.Id != 0 {
-		ctx.JSON(http.StatusOK, lib.Users{
+		ctx.JSON(http.StatusOK, lib.Response{
 			Success: true,
 			Message: "Detail event",
 			Results: selected,
 		})
 	} else {
-		ctx.JSON(http.StatusOK, lib.Users{
+		ctx.JSON(http.StatusOK, lib.Response{
 			Success: false,
 			Message: "Data not found",
 		})
@@ -42,15 +38,12 @@ func DetailEvent (ctx *gin.Context) {
 func CreateEvent (ctx *gin.Context) {
 	newEvent := models.Events{}
 	ctx.Bind(&newEvent)
-	// id, _ := ctx.Get("userId")
-	// createdBy,_ := id.(int)
-	// newEvent.CreatedBy = &createdBy
 
 	createdBy, _ := ctx.Keys["userId"].(int)
 	newEvent.CreatedBy = &createdBy
 
 	result := models.CreateNewEvent(newEvent)
-	ctx.JSON(http.StatusOK, lib.Users{
+	ctx.JSON(http.StatusOK, lib.Response{
 		Success: true,
 		Message: "Success create new event!",
 		Results: result,
@@ -64,14 +57,14 @@ func UpdateEvent (ctx *gin.Context) {
 	updated := models.EditTheEvent(selected, id)
 
 	if updated.Id == 0 {
-		ctx.JSON(http.StatusNotFound, lib.Users{
+		ctx.JSON(http.StatusNotFound, lib.Response{
 			Success: false,
 			Message: "Event not found",
 		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, lib.Users{
+	ctx.JSON(http.StatusOK, lib.Response{
 		Success: true,
 		Message: "Success edit event",
 		Results: updated,
@@ -82,14 +75,14 @@ func DeleteEvent (ctx *gin.Context) {
 
 	delete := models.RemoveTheEvent(id)
 	if delete.Id == 0 {
-		ctx.JSON(http.StatusNotFound, lib.Users{
+		ctx.JSON(http.StatusNotFound, lib.Response{
 			Success: false,
 			Message: "Cannot delete the data due to failed request",
 		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, lib.Users{
+	ctx.JSON(http.StatusOK, lib.Response{
 		Success: true,
 		Message: "Success deleted the data",
 		Results: delete,

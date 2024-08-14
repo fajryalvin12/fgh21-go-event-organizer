@@ -14,17 +14,25 @@ type Users struct {
 	Password string `json:"-" form:"password" binding:"required,min=8"`
 	Username *string `json:"username,omitempty" form:"username" binding:"required"`
 }
-
-func FindAllUsers() []Users {
+func CountUsers () {
 	db := lib.DB()
 	defer db.Close(context.Background())
-	sql := `select "id", "email", "password", "username" from "users" order by "id" asc `
+}
+func FindAllUsers(search string, limit int, page int) []Users {
+	db := lib.DB()
+	defer db.Close(context.Background())
+	offset := (page - 1) * limit
+	sql := `select * from "users" where "email" ilike '%' || $1 || '%' limit $2 offset $3`
 	rows, _ := db.Query(
 		context.Background(),
 	 	sql,
+		search,
+		limit,
+		offset,
 	)
 
 	users, _ := pgx.CollectRows(rows, pgx.RowToStructByPos[Users])
+	fmt.Println(users)
 
 	return users
 }
@@ -38,9 +46,7 @@ func FindUserId(id int) Users {
 	 	sql,
 		id,
 	)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
+
 
 	users, err := pgx.CollectRows(rows, pgx.RowToStructByPos[Users])
 
@@ -56,26 +62,22 @@ func FindUserId(id int) Users {
 	}
 	return user
 }
-func CreateNewUser(data Users) (Users, error) {
+func CreateNewUser(data Users) Users {
 	db := lib.DB()
 	defer db.Close(context.Background())
-	fmt.Println(data)
 	data.Password = lib.Encrypt(data.Password)
 
-	sql := `insert into "users" ("email", "password", "username") values ($1, $2, $3)`
-	_, err := db.Exec(context.Background(), sql, data.Email, data.Password, data.Username)
+	sql := `insert into "users" ("email", "password", "username") values ($1, $2, $3) returning "id", "email", "password", "username"`
+	row := db.QueryRow(context.Background(), sql, data.Email, data.Password, data.Username)
 
-	if err != nil {
-		fmt.Println(err)
-	}
-	users := FindAllUsers()
-	id := 0
-	for _, v := range users {
-		 id = v.Id
-	}
-
-	data.Id = id
-	return data, err
+	var results Users
+	row.Scan(
+		&results.Id,
+		&results.Email,
+		&results.Password,
+		&results.Username,
+	)
+	return results
 }
 func EditTheUser(email string, username string, password string, id string) {
     db := lib.DB()

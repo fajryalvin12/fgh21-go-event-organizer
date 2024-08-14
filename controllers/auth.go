@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
@@ -26,7 +25,7 @@ func AuthLogin(ctx *gin.Context) {
 	found := models.FindUserEmail(user.Email)
 
 	if found == (models.Users{}) {
-		ctx.JSON(http.StatusUnauthorized, lib.Users{
+		ctx.JSON(http.StatusUnauthorized, lib.Response{
 			Success: false,
 			Message: "wrong email or password",
 		})
@@ -37,7 +36,7 @@ func AuthLogin(ctx *gin.Context) {
 
 	if isVerified {
 		JWToken := lib.GenerateUserIdToken(found.Id)
-		ctx.JSON(http.StatusOK, lib.Users{
+		ctx.JSON(http.StatusOK, lib.Response{
 			Success: true,
 			Message: "Login Success!",
 			Results: Token{
@@ -45,7 +44,7 @@ func AuthLogin(ctx *gin.Context) {
 			},
 		})
 	} else {
-		ctx.JSON(http.StatusUnauthorized, lib.Users{
+		ctx.JSON(http.StatusUnauthorized, lib.Response{
 			Success: false,
 			Message: "Wrong email or password",
 		})
@@ -61,10 +60,10 @@ func AuthRegister (ctx *gin.Context) {
 	user.Email = form.Email
 	user.Password = form.Password
 	profile.FullName = form.FullName
-	createUser, err := models.CreateNewUser(user)
-	if err != nil {
-		fmt.Println("Email already exist")
-	}
+	createUser:= models.CreateNewUser(user)
+	// if err != nil {
+	// 	fmt.Println("Email already exist")
+	// }
 
 	userId := createUser.Id
 	profile.UserId = userId
@@ -73,7 +72,7 @@ func AuthRegister (ctx *gin.Context) {
 	createProfile.Email = form.Email
 	createProfile.FullName = form.FullName 
 
-	ctx.JSON(http.StatusOK, lib.Users{
+	ctx.JSON(http.StatusOK, lib.Response{
 		Success: true,
 		Message: "Register Success",
 		Results: createProfile,

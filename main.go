@@ -4,18 +4,6 @@ import (
 	"github.com/fajryalvin12/fgh21-go-event-organizer/routers"
 	"github.com/gin-gonic/gin"
 ) 
-type Data struct {
-	Id 			int `json:"id"`
-	Name 		string `json:"name" form:"name" binding:"required"`
-	Email 		string `json:"email" form:"email" binding:"required,email"`
-	Password 	string `json:"-" form:"password" binding:"required,min=8"`
-}
-
-type Users struct {
-	Success bool `json:"success"`
-	Message string `json:"message"`
-	Results interface{} `json:"results,omitempty"`
-}
 
 func main() {
 

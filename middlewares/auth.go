@@ -11,7 +11,7 @@ import (
 func tokenFailed(ctx *gin.Context) {
 	if e:=recover(); e != nil {
 		fmt.Println(e)
-		ctx.JSON(http.StatusUnauthorized, lib.Users{
+		ctx.JSON(http.StatusUnauthorized, lib.Response{
 			Success: false,
 			Message: "Unauthorized",
 		})
