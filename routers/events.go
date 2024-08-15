@@ -13,4 +13,6 @@ func EventsRouter(r *gin.RouterGroup) {
 	r.POST("", controllers.CreateEvent)
 	r.PATCH("/:id",controllers.UpdateEvent)
 	r.DELETE("/:id",controllers.DeleteEvent)
+	r.GET("/section/:id", controllers.ListAllSectionsByEvent)
+	r.GET("/payment_method", controllers.ListPaymentMethods)
 }

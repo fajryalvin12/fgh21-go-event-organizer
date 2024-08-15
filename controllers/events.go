@@ -88,3 +88,23 @@ func DeleteEvent (ctx *gin.Context) {
 		Results: delete,
 	})
 }
+func ListAllSectionsByEvent(ctx *gin.Context) {
+	id, _ := strconv.Atoi(ctx.Param("id"))
+
+	sections := models.FindAllSectionsByEventId(id)
+
+	ctx.JSON(http.StatusOK, lib.Response{
+		Success: true,
+		Message: "List All sections",
+		Results: sections,
+	})
+}
+func ListPaymentMethods (ctx *gin.Context) {
+	payment := models.FindAllPaymentMethods()
+
+	ctx.JSON(http.StatusOK, lib.Response{
+		Success: true,
+		Message: "List All Payment Methods",
+		Results: payment,
+	})
+}

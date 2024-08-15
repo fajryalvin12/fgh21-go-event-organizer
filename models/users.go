@@ -14,9 +14,16 @@ type Users struct {
 	Password string `json:"-" form:"password" binding:"required,min=8"`
 	Username *string `json:"username,omitempty" form:"username" binding:"required"`
 }
-func CountUsers () {
+func CountUsers (src string) int {
 	db := lib.DB()
 	defer db.Close(context.Background())
+
+	sql := `SELECT COUNT(*) FROM users WHERE "email" ILIKE '%' || $1 || '%'`
+	row := db.QueryRow(context.Background(), sql, src)
+
+	var num int
+	row.Scan(&num)
+	return num
 }
 func FindAllUsers(search string, limit int, page int) []Users {
 	db := lib.DB()

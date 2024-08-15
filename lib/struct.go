@@ -3,7 +3,7 @@ package lib
 type Response struct {
 	Success  bool   `json:"success"`
 	Message  string `json:"message"`
-	PageInfo any    `json:"pageInfo"`
+	PageInfo any    `json:"pageInfo,omitempty"`
 	Results  any    `json:"results,omitempty"`
 }
 

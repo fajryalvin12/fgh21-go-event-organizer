@@ -18,7 +18,6 @@ func ListAllCategories(ctx *gin.Context) {
 		limit = 5
 	}
 
-	
 	cat, count := models.ShowAllCategories(search, limit, page)
 	pageInfo := lib.PageInfo{
 		TotalData: count ,

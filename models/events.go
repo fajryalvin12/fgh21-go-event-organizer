@@ -17,6 +17,13 @@ type Events struct {
 	LocationId  *int   `json:"location_id" form:"location_id" db:"location_id"`
 	CreatedBy   *int   `json:"created_by" form:"created_by" db:"created_by"`
 }
+type Section struct {
+	Id 				int 	`json:"id"`
+	EventId 		int 	`json:"eventId"`
+	SectionName 	string 	`json:"name"`
+	Quantity 		int 	`json:"quantity"`
+	SectionPrice 	int 	`json:"price"`
+}
 
 func FindAllEvents() []Events {
 	db := lib.DB()
@@ -81,4 +88,28 @@ func RemoveTheEvent (id int) Events {
 	db.Exec(context.Background(), sql, id)
 
 	return event
+}
+func FindSectionByEventId (eventId int) Section {
+	db := lib.DB()
+	defer db.Close(context.Background())
+
+	sql := `select * from "event_sections" where "event_id" = $1`
+	rows, _ := db.Query(
+		context.Background(),
+		sql,
+		eventId,
+	)
+
+	sections, err := pgx.CollectRows(rows, pgx.RowToStructByPos[Section])
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	section := Section{}
+	for _, val := range sections {
+		if val.EventId == eventId{
+			section = val
+		}
+	}
+	return section
 }

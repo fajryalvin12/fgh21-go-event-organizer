@@ -61,9 +61,6 @@ func AuthRegister (ctx *gin.Context) {
 	user.Password = form.Password
 	profile.FullName = form.FullName
 	createUser:= models.CreateNewUser(user)
-	// if err != nil {
-	// 	fmt.Println("Email already exist")
-	// }
 
 	userId := createUser.Id
 	profile.UserId = userId
