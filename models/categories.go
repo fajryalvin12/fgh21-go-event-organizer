@@ -78,13 +78,16 @@ func CreateNewCategory (data Category) Category {
 	)
 	return result
 }
-func EditCategory (name string, id int) {
+func EditCategory (data Category, id int) Category {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
-	dataSql := `update "categories" set (name) = ($1) where id=$2`
+	dataSql := `UPDATE categories SET name = $1 WHERE id= $2`
 
-    db.Exec(context.Background(), dataSql, name, id)
+    db.Exec(context.Background(), dataSql, data.Name, id)
+
+	data.Id = id
+	return data
 }
 func RemoveCategory (id int) Category {
 	db := lib.DB()

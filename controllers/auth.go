@@ -17,9 +17,13 @@ type FormRegister struct {
 	Password		string `form:"password"`
 	ConfirmPassword	string `form:"confirmPassword" binding:"eqfield=Password"`
 }
+type FormLogin struct {
+	Email			string `form:"email"`
+	Password		string `form:"password"`
+}
 
 func AuthLogin(ctx *gin.Context) {
-	var user models.Users
+	var user FormLogin
 	ctx.Bind(&user)
 
 	found := models.FindUserEmail(user.Email)

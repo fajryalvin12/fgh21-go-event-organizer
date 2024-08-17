@@ -65,37 +65,25 @@ func AddCategory (ctx *gin.Context) {
 	})
 }
 func UpdateCategory (ctx *gin.Context) {
-	param := ctx.Param("id")
-    id, _  := strconv.Atoi(param)
-	search := ctx.Query("search")
-	limit, _ := strconv.Atoi(ctx.Query("limit"))
-	page, _ := strconv.Atoi(ctx.Query("page"))
+    id, _  := strconv.Atoi(ctx.Param("id"))
+	selected := models.Category{}
+	ctx.Bind(&selected)
 
-	cat := models.Category{}
+	update := models.EditCategory(selected, id)
 
-	sliceCat, _ := models.ShowAllCategories(search, limit, page)
-
-	ctx.Bind(&cat)
-	for _, v := range sliceCat {
-		if v.Id == id {
-			cat = v
-		}
-	}
-
-	if cat.Id == 0 {
+	if update.Id == 0 {
 		ctx.JSON(http.StatusNotFound, lib.Response{
-            Success: false,
-            Message: "Cannot find the category with id:" + param,
-        })
-        return
+			Success: false,
+			Message: "Data not found",
+		})
+		return
 	}
 
-	models.EditCategory(cat.Name, id)
 	ctx.JSON(http.StatusOK, lib.Response{
-        Success: true,
-        Message: "Success editing user with id: " + param,
-        Results: cat,
-    })
+		Success: true,
+		Message: "Success edit event",
+		Results: update,
+	})
 }
 func DeleteCategory (ctx *gin.Context) {
 	id, _:= strconv.Atoi(ctx.Param("id"))

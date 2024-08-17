@@ -7,12 +7,12 @@ import (
 )
 
 func EventsRouter(r *gin.RouterGroup) {
-	r.Use(middlewares.AuthMiddleware())
+	// r.Use(middlewares.AuthMiddleware())
 	r.GET("", controllers.ListEvents)
 	r.GET("/:id", controllers.DetailEvent)
-	r.POST("", controllers.CreateEvent)
-	r.PATCH("/:id",controllers.UpdateEvent)
-	r.DELETE("/:id",controllers.DeleteEvent)
+	r.POST("", middlewares.AuthMiddleware(), controllers.CreateEvent)
+	r.PATCH("/:id", middlewares.AuthMiddleware(), controllers.UpdateEvent)
+	r.DELETE("/:id", middlewares.AuthMiddleware(), controllers.DeleteEvent)
 	r.GET("/section/:id", controllers.ListAllSectionsByEvent)
 	r.GET("/payment_method", controllers.ListPaymentMethods)
 }
