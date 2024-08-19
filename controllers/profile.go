@@ -7,6 +7,16 @@ import (
 	"github.com/fajryalvin12/fgh21-go-event-organizer/models"
 	"github.com/gin-gonic/gin"
 )
+type FormUpdateProfile struct {
+	FullName 		string 	`form:"fullName`
+	Username 		*string `form:"username"`
+	Email 			string 	`form:"email"`
+	Gender 			int 	`form:"gender"`
+	PhoneNumber 	string 	`form:"phoneNumber"`
+	Profession		string 	`form:"profession"`
+	Nationality		int 	`form:"nationality"`
+	BirthDate 		string 	`form:"birthDate"`
+}
 
 func DetailUserProfile(ctx *gin.Context) {
 
@@ -20,23 +30,27 @@ func DetailUserProfile(ctx *gin.Context) {
 	})
 }
 func UpdateProfile (ctx *gin.Context) {
+	form := models.JoinProfile{}
+	ctx.Bind(&form)
 	id := ctx.GetInt("userId")
-	selected := models.Profile{}
-	ctx.Bind(&selected)
+	
+	models.EditProfileUsers(models.Users{
+		Username: &form.Username,
+		Email: form.Email,
+	}, id)
 
-	updated := models.ChangeDataProfile(selected, id)
-	updated.UserId = id
+	edit := models.ChangeProfileByUserId(models.Profile{
+		FullName: form.FullName,
+		BirthDate: form.BirthDate,
+		Gender: *form.Gender,
+		PhoneNumber: form.PhoneNumber,
+		Profession: form.Profession,
+		NationalityId: form.Nationality,
+	}, id)
 
-	if updated.Id == 0 {
-		ctx.JSON(http.StatusNotFound, lib.Response{
-			Success: false,
-			Message: "Profile not found",
-		})
-		return
-	}
 	ctx.JSON(http.StatusOK, lib.Response{
 		Success: true,
-		Message: "Success edit profile",
-		Results: updated,
+		Message: "Success to edit profile",
+		Results: edit,
 	})
 }

@@ -57,7 +57,7 @@ func ListOfTransactions (id int) DetailTransaction {
 	JOIN transaction_details td ON td.transaction_id = t.id
 	JOIN event_sections es ON es.id = td.section_id
 	WHERE t.id = $1
-	GROUP BY t.id, p.full_name, e.title, e.location_id, e."date", pm.name `
+	GROUP BY t.id, p.full_name, e.title, e.location_id, e."date", pm.name`
 	row := db.QueryRow(context.Background(), sql, id )
 
 	var collect DetailTransaction

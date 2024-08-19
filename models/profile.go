@@ -20,14 +20,14 @@ type Profile struct {
 }
 type JoinProfile struct {
 	Id 				int `json:"id"`
-	FullName 		string `json:"fullName" db:"full_name"`
-	Username 		*string `json:"username,omitempty" db:"username"`
-	Email 			string `json:"email"`
-	Gender 			int `json:"gender,omitempty"`
-	PhoneNumber 	string `json:"phoneNumber,omitempty" db:"phone_number"`
-	Profession		string `json:"profession,omitempty"`
-	BirthDate 		string `json:"birthDate,omitempty" db:"birth_date"`
-	Nationality		int `json:"nationality,omitempty"`
+	FullName 		string `json:"fullName" db:"full_name" form:"fullName"`
+	Username 		string `json:"username,omitempty" db:"username" form:"userName"`
+	Email 			string `json:"email" form:"email"`
+	Gender 			*int `json:"gender,omitempty" form:"gender"`
+	PhoneNumber 	*string `json:"phoneNumber,omitempty" db:"phone_number" form:"phoneNumber"`
+	Profession		*string `json:"profession,omitempty" form:"profession"`
+	Nationality		*int `json:"nationality,omitempty" form:"nationality"`
+	BirthDate 		*string `json:"birthDate,omitempty" db:"birth_date" form:"birthDate"`
 }
 
 func CreateProfile(data Profile) JoinProfile {
@@ -39,11 +39,7 @@ func CreateProfile(data Profile) JoinProfile {
 	values 
 	($1, $2, $3, $4, $5, $6, $7, $8)`
 
-	_, err := db.Exec(context.Background(), sqlProfile, data.Picture, data.FullName, data.BirthDate, data.Gender, data.PhoneNumber, data.Profession, data.NationalityId, data.UserId)
-
-	if err != nil {
-		fmt.Println(err)
-	}
+	db.Exec(context.Background(), sqlProfile, data.Picture, data.FullName, data.BirthDate, data.Gender, data.PhoneNumber, data.Profession, data.NationalityId, data.UserId)
 
 	var result JoinProfile
 
@@ -59,7 +55,7 @@ func ListAllProfile ()[]JoinProfile {
 	joinSql := `select "u"."id", "p"."full_name","u"."username", "u"."email", "p"."gender","p"."phone_number", "p"."profession", "p"."nationality_id", "p"."birth_date"  
 	from "users" "u" 
 	join "profile" "p"
-	on "u"."id" = "p"."user_id"`
+	on "u"."id" = "p"."user_id" order by asc`
 		
 	rows, err:= db.Query(
 		context.Background(),
@@ -69,7 +65,6 @@ func ListAllProfile ()[]JoinProfile {
 		fmt.Println(err)
 	}
 	data, _ := pgx.CollectRows(rows, pgx.RowToStructByPos[JoinProfile])
-	fmt.Println(data)
 	return data
 }
 func FindProfileByUserId(id int) JoinProfile {
@@ -92,20 +87,20 @@ func FindProfileByUserId(id int) JoinProfile {
 		&result.Gender,
 		&result.PhoneNumber,
 		&result.Profession,
-		&result.BirthDate,
 		&result.Nationality,
+		&result.BirthDate,
 	)
 
 	return result
 }
-func ChangeDataProfile (data Profile, id int) Profile {
+func ChangeProfileByUserId (data Profile, id int) JoinProfile {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
-	sql := `update "profile" set ("picture", "full_name", "birth_date", "gender", "phone_number", "profession", "nationality_id") = ($1, $2, $3, $4, $5, $6, $7) where "id"=$8;`
+	sql := `update "profile" set ("full_name", "phone_number", "gender", "profession", "nationality_id", "birth_date") = ($1, $2, $3, $4, $5, $6) where "user_id"=$7`
 
-	db.Exec(context.Background(), sql, data.Picture, data.FullName, data.BirthDate, data.Gender, data.PhoneNumber, data.Profession, data.NationalityId, id)
+	db.Exec(context.Background(), sql, data.FullName, data.PhoneNumber, data.Gender, data.Profession, data.NationalityId, data.BirthDate ,id)
 
-	data.Id = id
-	return data
+	result := FindProfileByUserId(id)
+	return result
 }

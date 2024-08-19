@@ -7,7 +7,6 @@ import (
 )
 
 func EventsRouter(r *gin.RouterGroup) {
-	// r.Use(middlewares.AuthMiddleware())
 	r.GET("", controllers.ListEvents)
 	r.GET("/:id", controllers.DetailEvent)
 	r.POST("", middlewares.AuthMiddleware(), controllers.CreateEvent)

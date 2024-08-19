@@ -24,7 +24,6 @@ func CreateTransaction(ctx *gin.Context) {
 		PaymentMethodId: form.PaymentMethodId,
 		UserId: user,
 	})
-	// fmt.Println(form)
 
 	for i := range form.SectionId {
 		models.CreateDetailTransaction(models.DetailsTrx{

@@ -1,5 +1,5 @@
 INSERT INTO events ("image", "title", "date", "description") VALUES (
-'https://cdns.klimg.com/mav-prod-resized/480x/ori/feedImage/2023/8/12/1691850770749-jodl4.jpeg',
+'https://i.pinimg.com/564x/cc/6d/6e/cc6d6e8bc121865f76c916f118a08dbd.jpg',
 'The 90s Festival 2024',
 '2024-08-10',
 'Feel the nostalgic songs with legends Guest Stars in Gambir. Ebiet G. Ade, Romeo, Slank, Jamrud or even P-Project ready to entertain you all.'

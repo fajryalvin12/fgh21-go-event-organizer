@@ -54,6 +54,7 @@ func CreateUser (c *gin.Context) {
 	}
 
 	data := models.CreateNewUser(user)
+	fmt.Println(data)
 
 	c.JSON(http.StatusOK, lib.Response{
 		Success: true,
@@ -62,43 +63,24 @@ func CreateUser (c *gin.Context) {
 	})
 }
 func UpdateUser (c *gin.Context) {
-	param := c.Param("id")
-    id, _  := strconv.Atoi(param)
-	search := c.Query("search")
-	limit, _ := strconv.Atoi(c.Query("limit"))
-	page, _ := strconv.Atoi(c.Query("page"))
-
-    data := models.FindAllUsers(search, limit, page)
-
+    id, _  := strconv.Atoi(c.Param("id"))
     user := models.Users{}
-    err := c.Bind(&user)
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
+    c.Bind(&user)
 
-    result := models.Users{}
-    for _, v := range data {
-        if v.Id == id {
-            result = v
-        }
-    }
+	data := models.EditTheUser(user, id)
 
-    if result.Id == 0 {
+    if data.Id == 0 {
         c.JSON(http.StatusNotFound, lib.Response{
             Success: false,
-            Message: "Cannot find the user with id:" + param,
+            Message: "Cannot find the user with this id",
         })
         return
     }
 
-
-    models.EditTheUser(user.Email, *user.Username, user.Password, param)
-
     c.JSON(http.StatusOK, lib.Response{
         Success: true,
-        Message: "Success editing user with id: " + param,
-        Results: user,
+        Message: "Success editing user",
+        Results: data,
     })
 }
 func DeleteUser (ctx *gin.Context) {

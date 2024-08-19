@@ -86,13 +86,40 @@ func CreateNewUser(data Users) Users {
 	)
 	return results
 }
-func EditTheUser(email string, username string, password string, id string) {
+func EditTheUser(data Users, id int) Users {
     db := lib.DB()
     defer db.Close(context.Background())
 
-    dataSql := `update "users" set (email , username, password) = ($1, $2, $3) where id=$4`
+    dataSql := `update "users" set (email , username, password) = ($1, $2, $3) where id=$4 returning "id", "email", "username", "password"`
 
-    db.Exec(context.Background(), dataSql, email, username, password, id)
+    query := db.QueryRow(context.Background(), dataSql, data.Email, data.Password, data.Username, id)
+
+	var result Users 
+	query.Scan(
+		&result.Id,
+		&result.Email,
+		&result.Password,
+		&result.Username,
+	)
+
+	return result
+}
+func EditProfileUsers(data Users, id int) Users {
+    db := lib.DB()
+    defer db.Close(context.Background())
+
+    dataSql := `update "users" set (email , username) = ($1, $2) where id=$3 returning "id", "email", "username"`
+
+    query := db.QueryRow(context.Background(), dataSql, data.Email, data.Username, id)
+
+	var result Users 
+	query.Scan(
+		&result.Id,
+		&result.Email,
+		&result.Username,
+	)
+
+	return result
 }
 func RemoveUser(data Users, id int) error {
 	db := lib.DB()
