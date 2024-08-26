@@ -149,12 +149,12 @@ func ChangePassUser(ctx *gin.Context) {
 			Message: "Please input match password",
 		})
 		return
-	} else {
+	} 
 		pass := models.ChangePass(form, userId)
 		ctx.JSON(http.StatusOK, lib.Response{
 			Success: true,
 			Message: "Password has been changed",
 			Results: pass,
 		})
-	}
+	
 }

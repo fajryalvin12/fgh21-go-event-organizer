@@ -165,12 +165,14 @@ func ChangePass(data ChangePassword, id int) Users {
 	defer db.Close(context.Background())
 
 	updatePass := lib.Encrypt(data.NewPassword)
-	sql := `update "users" set (password) = ($1) where id=$2`
+	sql := `update "users" set "password" = $1 where id=$2`
+	fmt.Println(updatePass)
 
 	_, err := db.Exec(context.Background(), sql, updatePass, id)
 
 	if err != nil {
 		fmt.Println(err)
+		return Users{}
 	}
 
 	result := FindUserId(id)
