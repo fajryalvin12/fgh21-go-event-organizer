@@ -76,3 +76,16 @@ func AddNewWishlist (data Wishlist) Wishlist {
 
 	return result
 }
+func DeleteTheWishlist (id int) Wishlist{
+	db := lib.DB()
+	defer db.Close(context.Background())
+
+	sql := `delete from "wishlist" where id=$1 returning "id", "user_id", "event_id"`
+
+	query := db.QueryRow(context.Background(), sql, id)
+
+	var result Wishlist
+	query.Scan(&result.Id, &result.UserId, &result.EventId)
+
+	return result
+}

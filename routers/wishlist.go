@@ -10,4 +10,5 @@ func WishlistRouter(r *gin.RouterGroup) {
 	r.Use(middlewares.AuthMiddleware())
 	r.GET("", controllers.ListAllWishlist)
 	r.POST("", controllers.CreateWishlist)
+	r.DELETE("/:id", controllers.RemoveWishlist)
 }

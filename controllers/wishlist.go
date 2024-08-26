@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/models"
@@ -31,5 +32,16 @@ func CreateWishlist(c *gin.Context) {
 		Success: true,
 		Message: "New Wishlist has been added",
 		Results: wish,
+	})
+}
+func RemoveWishlist (c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	del := models.DeleteTheWishlist(id)
+
+	c.JSON(http.StatusOK, lib.Response{
+		Success: true,
+		Message: "The wishlist has been removed",
+		Results: del,
 	})
 }
