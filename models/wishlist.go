@@ -21,6 +21,18 @@ type JoinWishlistEvent struct {
 	Description string 	`json:"description"`
 }
 
+func FindAllWishlist () []Wishlist {
+	db := lib.DB()
+	defer db.Close(context.Background())
+
+	sql := `select * from "wishlist"`
+
+	query, _ := db.Query(context.Background(), sql)
+
+	rows, _ := pgx.CollectRows(query, pgx.RowToStructByPos[Wishlist])
+
+	return rows
+}
 func FindAllUsersWishlist (userId int) []JoinWishlistEvent {
 	db := lib.DB()
 	defer db.Close(context.Background())
@@ -30,7 +42,7 @@ func FindAllUsersWishlist (userId int) []JoinWishlistEvent {
 	from "wishlist" "w" 
 	join "events" "e" 
 	on "w"."event_id" = "e"."id" 
-	where "w"."id" = $1;`
+	where "w"."user_id" = $1;`
 
 	query, err := db.Query(
 		context.Background(),
@@ -56,14 +68,11 @@ func AddNewWishlist (data Wishlist) Wishlist {
 	query := db.QueryRow(context.Background(), sql, data.UserId, data.EventId)
 
 	var result Wishlist
-	err := query.Scan(
+	query.Scan(
 		&result.Id,
 		&result.UserId,
 		&result.EventId,
 	)
-	if err != nil {
-		fmt.Println(err)
-	}
 
 	return result
 }
