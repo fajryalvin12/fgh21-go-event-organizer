@@ -53,14 +53,17 @@ func AddNewWishlist (data Wishlist) Wishlist {
 
 	sql := `insert into "wishlist" ("user_id", "event_id") values ($1, $2) returning id, user_id, event_id`
 
-	query := db.QueryRow(context.Background(), sql, data.Id, data.UserId, data.EventId)
+	query := db.QueryRow(context.Background(), sql, data.UserId, data.EventId)
 
 	var result Wishlist
-	query.Scan(
+	err := query.Scan(
 		&result.Id,
 		&result.UserId,
 		&result.EventId,
 	)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	return result
 }
