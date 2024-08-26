@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
@@ -18,6 +19,7 @@ func CreateTransaction(ctx *gin.Context) {
 	form := FormTransaction{}
 	ctx.Bind(&form)
 	user := ctx.GetInt("userId")
+	fmt.Println(form)
 
 	trx := models.CreateNewTransactions(models.Transaction{
 		EventId: form.EventId,

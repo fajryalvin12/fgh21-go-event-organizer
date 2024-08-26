@@ -1,14 +1,14 @@
-host ?= localhost
+host ?= 172.17.0.2
 port ?= 5432
 user ?= postgres
-pass ?= af8d878454e34aa38ff895418dc4d148
+pass ?= 1
 db ?= event_organizer
 
 migrate\:init:
-	PGPASSWORD=$(pass) psql -U$(user) -d postgres -p $(port) -c "create database $(db);"
+	PGPASSWORD=$(pass) psql -U$(user) -h $(host) -d postgres -p $(port) -c "create database $(db);"
 
 migrate\:drop:
-	PGPASSWORD=$(pass) psql -U$(user) -d postgres -p $(port) -c "drop database if exists $(db) with (force);"
+	PGPASSWORD=$(pass) psql -U$(user) -h $(host) -d postgres -p $(port) -c "drop database if exists $(db) with (force);"
 
 migrate\:up:
 	migrate -database postgresql://$(user):$(pass)@$(host):$(port)/$(db)?sslmode=disable -path migrations up $(version)

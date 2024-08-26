@@ -22,22 +22,25 @@ func countCategory(src string) int {
 	row.Scan(&num)
 	return num
 }
-func ShowAllCategories(search string, limit int, page int) ([]Category, int)  {
+func ShowAllCategories() []Category  {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
-	offset := (page - 1) * limit
-	sql := `SELECT * FROM categories WHERE "name" ILIKE '%' || $1 || '%'
-		LIMIT $2
-		OFFSET $3
-		`
-	rows, _ := db.Query(context.Background(), sql, search, limit, offset)
+	// offset := (page - 1) * limit
+	// sql := `SELECT * FROM categories WHERE "name" ILIKE '%' || $1 || '%'
+	// 	LIMIT $2
+	// 	OFFSET $3
+	// 	`
+	sql := `SELECT * FROM categories`
+	// rows, _ := db.Query(context.Background(), sql, search, limit, offset)
+	rows, _ := db.Query(context.Background(), sql)
 
 	data, _ := pgx.CollectRows(rows, pgx.RowToStructByPos[Category])
 	
-	count := countCategory(search)
+	// count := countCategory(search)
 
-	return data, count
+	// return data, count
+	return data
 }
 func ShowCategoryById (id int) Category {
 	db := lib.DB()

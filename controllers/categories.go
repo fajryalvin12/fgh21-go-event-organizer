@@ -10,27 +10,27 @@ import (
 )
 
 func ListAllCategories(ctx *gin.Context) {
-	search := ctx.Query("search")
-	limit, _ := strconv.Atoi(ctx.Query("limit"))
-	page, _ := strconv.Atoi(ctx.Query("page"))
+	// search := ctx.Query("search")
+	// limit, _ := strconv.Atoi(ctx.Query("limit"))
+	// page, _ := strconv.Atoi(ctx.Query("page"))
 
-	if limit == 0 {
-		limit = 5
-	}
+	// if limit == 0 {
+	// 	limit = 5
+	// }
 
-	cat, count := models.ShowAllCategories(search, limit, page)
-	pageInfo := lib.PageInfo{
-		TotalData: count ,
-		TotalPage: 0,
-		Page: page,
-		Limit: limit,
-		Next: 0,
-		Prev: 0,
-	}
+	cat := models.ShowAllCategories()
+	// pageInfo := lib.PageInfo{
+	// 	TotalData: count ,
+	// 	TotalPage: 0,
+	// 	Page: page,
+	// 	Limit: limit,
+	// 	Next: 0,
+	// 	Prev: 0,
+	// }
 	ctx.JSON(http.StatusOK, lib.Response{
 		Success: true,
 		Message: "List All Categories",
-		PageInfo: pageInfo,
+		// PageInfo: pageInfo,
 		Results: cat,
 	})
 }

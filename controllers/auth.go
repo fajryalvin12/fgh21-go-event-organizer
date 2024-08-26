@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
@@ -57,14 +58,18 @@ func AuthLogin(ctx *gin.Context) {
 }
 func AuthRegister (ctx *gin.Context) {
 	form := FormRegister{}
-	var user models.Users
-	var profile models.Profile
+	var user = models.Users{}
+	var profile = models.Profile{}
 
-	ctx.Bind(&form)
+	err := ctx.Bind(&form)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	user.Email = form.Email
 	user.Password = form.Password
 	profile.FullName = form.FullName
+
 	createUser:= models.CreateNewUser(user)
 
 	userId := createUser.Id
@@ -72,8 +77,8 @@ func AuthRegister (ctx *gin.Context) {
 
 	createProfile := models.CreateProfile(profile)
 	createProfile.Email = form.Email
-	createProfile.FullName = form.FullName 
-
+	createProfile.FullName = form.FullName
+	
 	ctx.JSON(http.StatusOK, lib.Response{
 		Success: true,
 		Message: "Register Success",

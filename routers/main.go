@@ -11,4 +11,6 @@ func RouterCombine(r *gin.Engine){
 	ProfileRouter(r.Group("/profile"))
 	NationalitiesRouter(r.Group("/nationalities"))
 	PartnersRouter(r.Group("/partners"))
+	WishlistRouter(r.Group("/wishlist"))
+	LocationsRouter(r.Group("/locations"))
 }

@@ -61,11 +61,26 @@ func CreateNewEvent(data Events) Events {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
-	sql := `insert into "events" ("image", "title", "date", "description") values 
-	($1, $2, $3, $4)`
-	db.Exec(context.Background(), sql, data.Image, data.Title, data.Date, data.Description)
+	sql := `INSERT INTO events ("image", "title", "date", "description") VALUES 
+	($1, $2, $3, $4) RETURNING id, "image", "title", "date", "description"`
+	// db.Exec(context.Background(), sql, data.Image, data.Title, data.Date, data.Description)
 
-	return data
+	query := db.QueryRow(context.Background(), sql, data.Image, data.Title, data.Date, data.Description)
+
+	var result Events
+
+	err := query.Scan(
+		&result.Id,
+		&result.Image,
+		&result.Title,
+		&result.Date,
+		&result.Description,
+	)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return result
 }
 func EditTheEvent(data Events, id int) Events {
 	db := lib.DB()

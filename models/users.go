@@ -12,9 +12,16 @@ type Users struct {
 	Id       int    `json:"id"`
 	Email    string `json:"email" form:"email" binding:"required,email"`
 	Password string `json:"-" form:"password" binding:"required,min=8"`
-	Username *string `json:"username,omitempty" form:"username" binding:"required"`
+	Username string `json:"username,omitempty" form:"username" binding:"required"`
 }
-func CountUsers (src string) int {
+
+type ChangePassword struct {
+	OldPassword     string `json:"oldPassword" form:"oldPassword"`
+	NewPassword     string `json:"newPassword" form:"newPassword"`
+	ConfirmPassword string `json:"confirmPassword" form:"confirmPassword" binding:"eqfield=NewPassword"`
+}
+
+func CountUsers(src string) int {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
@@ -32,14 +39,13 @@ func FindAllUsers(search string, limit int, page int) []Users {
 	sql := `select * from "users" where "email" ilike '%' || $1 || '%' limit $2 offset $3`
 	rows, _ := db.Query(
 		context.Background(),
-	 	sql,
+		sql,
 		search,
 		limit,
 		offset,
 	)
 
 	users, _ := pgx.CollectRows(rows, pgx.RowToStructByPos[Users])
-	fmt.Println(users)
 
 	return users
 }
@@ -47,26 +53,21 @@ func FindUserId(id int) Users {
 
 	db := lib.DB()
 	defer db.Close(context.Background())
-	sql := `select * from "users" where "id" = $1`
-	rows, _ := db.Query(
+	sql := `SELECT id, email, password, username from users where id=$1`
+	rows := db.QueryRow(
 		context.Background(),
-	 	sql,
+		sql,
 		id,
 	)
 
-
-	users, err := pgx.CollectRows(rows, pgx.RowToStructByPos[Users])
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	user := Users{}
-	for _, val := range users {
-		if val.Id == id{
-			user = val
-		}
-	}
+	rows.Scan(
+		&user.Id,
+		&user.Email,
+		&user.Password,
+		&user.Username,
+	)
+
 	return user
 }
 func CreateNewUser(data Users) Users {
@@ -74,27 +75,26 @@ func CreateNewUser(data Users) Users {
 	defer db.Close(context.Background())
 	data.Password = lib.Encrypt(data.Password)
 
-	sql := `insert into "users" ("email", "password", "username") values ($1, $2, $3) returning "id", "email", "password", "username"`
-	row := db.QueryRow(context.Background(), sql, data.Email, data.Password, data.Username)
+	sql := `insert into "users" ("email", "username", "password") values ($1, $2, $3) returning "id", "email", "username"`
+	row := db.QueryRow(context.Background(), sql, data.Email, data.Username, data.Password)
 
 	var results Users
 	row.Scan(
 		&results.Id,
 		&results.Email,
-		&results.Password,
 		&results.Username,
 	)
 	return results
 }
 func EditTheUser(data Users, id int) Users {
-    db := lib.DB()
-    defer db.Close(context.Background())
+	db := lib.DB()
+	defer db.Close(context.Background())
 
-    dataSql := `update "users" set (email , username, password) = ($1, $2, $3) where id=$4 returning "id", "email", "username", "password"`
+	dataSql := `update "users" set (email , username, password) = ($1, $2, $3) where id=$4 returning "id", "email", "username", "password"`
 
-    query := db.QueryRow(context.Background(), dataSql, data.Email, data.Password, data.Username, id)
+	query := db.QueryRow(context.Background(), dataSql, data.Email, data.Password, data.Username, id)
 
-	var result Users 
+	var result Users
 	query.Scan(
 		&result.Id,
 		&result.Email,
@@ -105,14 +105,14 @@ func EditTheUser(data Users, id int) Users {
 	return result
 }
 func EditProfileUsers(data Users, id int) Users {
-    db := lib.DB()
-    defer db.Close(context.Background())
+	db := lib.DB()
+	defer db.Close(context.Background())
 
-    dataSql := `update "users" set (email , username) = ($1, $2) where id=$3 returning "id", "email", "username"`
+	dataSql := `update "users" set (email , username) = ($1, $2) where id=$3 returning "id", "email", "username"`
 
-    query := db.QueryRow(context.Background(), dataSql, data.Email, data.Username, id)
+	query := db.QueryRow(context.Background(), dataSql, data.Email, data.Username, id)
 
-	var result Users 
+	var result Users
 	query.Scan(
 		&result.Id,
 		&result.Email,
@@ -136,7 +136,7 @@ func RemoveUser(data Users, id int) error {
 	}
 	if delete.RowsAffected() == 0 {
 		return fmt.Errorf("data not found")
-	} 
+	}
 
 	return nil
 }
@@ -146,21 +146,30 @@ func FindUserEmail(email string) Users {
 	defer db.Close(context.Background())
 	rows, _ := db.Query(
 		context.Background(),
-	 	`select * from "users" where "email" = $1`,
+		`select * from "users" where "email" = $1`,
 		email,
 	)
 
-	users, err := pgx.CollectRows(rows, pgx.RowToStructByPos[Users])
-
-	if err != nil {
-		fmt.Println(err)
-	}
+	users, _ := pgx.CollectRows(rows, pgx.RowToStructByPos[Users])
 
 	user := Users{}
 	for _, val := range users {
-		if val.Email == email{
+		if val.Email == email {
 			user = val
 		}
 	}
 	return user
+}
+func ChangePass(data ChangePassword, id int) Users {
+	db := lib.DB()
+	defer db.Close(context.Background())
+
+	updatePass := lib.Encrypt(data.NewPassword)
+	sql := `update "users" set (password) = ($1) where id=$2`
+
+	db.Exec(context.Background(), sql, updatePass, id)
+
+	result := FindUserId(id)
+
+	return result
 }

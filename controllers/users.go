@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ListAllUsers(c *gin.Context) {	
+func ListAllUsers(c *gin.Context) {
 	search := c.Query("search")
 	limit, _ := strconv.Atoi(c.Query("limit"))
 	page, _ := strconv.Atoi(c.Query("page"))
@@ -27,7 +27,7 @@ func ListAllUsers(c *gin.Context) {
 		Results: users,
 	})
 }
-func DetailUser (c *gin.Context) {
+func DetailUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	selected := models.FindUserId(id)
 
@@ -43,8 +43,8 @@ func DetailUser (c *gin.Context) {
 			Message: "Data not found",
 		})
 	}
-} 
-func CreateUser (c *gin.Context) {
+}
+func CreateUser(c *gin.Context) {
 	user := models.Users{}
 
 	err := c.Bind(&user)
@@ -54,7 +54,6 @@ func CreateUser (c *gin.Context) {
 	}
 
 	data := models.CreateNewUser(user)
-	fmt.Println(data)
 
 	c.JSON(http.StatusOK, lib.Response{
 		Success: true,
@@ -62,37 +61,41 @@ func CreateUser (c *gin.Context) {
 		Results: data,
 	})
 }
-func UpdateUser (c *gin.Context) {
-    id, _  := strconv.Atoi(c.Param("id"))
-    user := models.Users{}
-    c.Bind(&user)
+func UpdateUser(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	user := models.Users{}
+	c.Bind(&user)
 
 	data := models.EditTheUser(user, id)
 
-    if data.Id == 0 {
-        c.JSON(http.StatusNotFound, lib.Response{
-            Success: false,
-            Message: "Cannot find the user with this id",
-        })
-        return
-    }
+	if data.Id == 0 {
+		c.JSON(http.StatusNotFound, lib.Response{
+			Success: false,
+			Message: "Cannot find the user with this id",
+		})
+		return
+	}
 
-    c.JSON(http.StatusOK, lib.Response{
-        Success: true,
-        Message: "Success editing user",
-        Results: data,
-    })
+	c.JSON(http.StatusOK, lib.Response{
+		Success: true,
+		Message: "Success editing user",
+		Results: data,
+	})
 }
-func DeleteUser (ctx *gin.Context) {
+func DeleteUser(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	selectUser := models.FindUserId(id)
+
+	if err != nil {
+		// ngapain
+	}
 
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, lib.Response{
 			Success: false,
 			Message: "Data not found",
 		})
-		return	
+		return
 	}
 
 	err = models.RemoveUser(models.Users{}, id)
@@ -108,5 +111,50 @@ func DeleteUser (ctx *gin.Context) {
 		Success: true,
 		Message: "Successfully deleted the data!",
 		Results: selectUser,
-	})	
+	})
+}
+func ChangePassUser(ctx *gin.Context) {
+	form := models.ChangePassword{}
+	userId := ctx.GetInt("userId")
+	err := ctx.Bind(&form)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, lib.Response{
+			Success: false,
+			Message: "Please input the password",
+		})
+		return
+	}
+
+	if userId <= 0 {
+		ctx.JSON(http.StatusNotFound, lib.Response{
+			Success: false,
+			Message: "Data not found",
+		})
+		return
+	}
+	user := models.FindUserId(userId)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, lib.Response{
+			Success: false,
+			Message: "User not found",
+		})
+		return
+	}
+
+	isVerified := lib.Verify(form.OldPassword, user.Password)
+
+	if !isVerified {
+		ctx.JSON(http.StatusBadRequest, lib.Response{
+			Success: false,
+			Message: "Please input match password",
+		})
+		return
+	} else {
+		pass := models.ChangePass(form, userId)
+		ctx.JSON(http.StatusOK, lib.Response{
+			Success: true,
+			Message: "Password has been changed",
+			Results: pass,
+		})
+	}
 }

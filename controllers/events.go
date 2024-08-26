@@ -39,7 +39,10 @@ func CreateEvent (ctx *gin.Context) {
 	newEvent := models.Events{}
 	ctx.Bind(&newEvent)
 
-	createdBy, _ := ctx.Keys["userId"].(int)
+	createdBy := ctx.GetInt("userId")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 	newEvent.CreatedBy = &createdBy
 
 	result := models.CreateNewEvent(newEvent)
