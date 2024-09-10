@@ -5,12 +5,13 @@ import (
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/models"
+	"github.com/fajryalvin12/fgh21-go-event-organizer/repository"
 	"github.com/gin-gonic/gin"
 )
 
 func ListAllWishlist (c *gin.Context) {
 	id := c.GetInt("userId")
-	list := models.FindAllUsersWishlist(id)
+	list := repository.FindAllUsersWishlist(id)
 
 	lib.HandlerOk(c, "Details of Wishlist", nil, list)
 }
@@ -19,14 +20,14 @@ func CreateWishlist(c *gin.Context) {
 
 	c.Bind(&form)
 	form.UserId = c.GetInt("userId")
-	wish := models.AddNewWishlist(form)
+	wish := repository.AddNewWishlist(form)
 
 	lib.HandlerOk(c, "New wishlist has been added", nil, wish)
 }
 func RemoveWishlist (c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	del := models.DeleteTheWishlist(id)
+	del := repository.DeleteTheWishlist(id)
 
 	lib.HandlerOk(c, "The wishlist has been removed", nil, del)
 }

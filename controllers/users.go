@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/fajryalvin12/fgh21-go-event-organizer/dtos"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/models"
+	"github.com/fajryalvin12/fgh21-go-event-organizer/repository"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,13 +20,13 @@ func ListAllUsers(c *gin.Context) {
 		page = (page - 1) * limit
 	}
 
-	users := models.FindAllUsers(search, limit, page)
+	users := repository.FindAllUsers(search, limit, page)
 
 	lib.HandlerOk(c, "List all users", nil, users)
 }
 func DetailUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	selected := models.FindUserId(id)
+	selected := repository.FindUserId(id)
 
 	if selected.Id != 0 {
 		lib.HandlerOk(c, "Detail user", nil, selected)
@@ -41,7 +43,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	data := models.CreateNewUser(user)
+	data := repository.CreateNewUser(user)
 	lib.HandlerOk(c, "Create data success", nil, data)
 }
 func UpdateUser(c *gin.Context) {
@@ -49,7 +51,7 @@ func UpdateUser(c *gin.Context) {
 	user := models.Users{}
 	c.Bind(&user)
 
-	data := models.EditTheUser(user, id)
+	data := repository.EditTheUser(user, id)
 
 	if data.Id == 0 {
 		lib.HandlerBadRequest(c, "Cannot find the user with this id")
@@ -60,14 +62,14 @@ func UpdateUser(c *gin.Context) {
 }
 func DeleteUser(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
-	selectUser := models.FindUserId(id)
+	selectUser := repository.FindUserId(id)
 
 	if err != nil {
 		lib.HandlerNotFound(ctx, "Data not found")
 		return
 	}
 
-	err = models.RemoveUser(models.Users{}, id)
+	err = repository.RemoveUser(models.Users{}, id)
 	if err != nil {
 		lib.HandlerBadRequest(ctx, "Id not found")
 		return
@@ -76,7 +78,7 @@ func DeleteUser(ctx *gin.Context) {
 	lib.HandlerOk(ctx, "Success remove the user", nil, selectUser)
 }
 func ChangePassUser(ctx *gin.Context) {
-	form := models.ChangePassword{}
+	form := dtos.ChangePassword{}
 	userId := ctx.GetInt("userId")
 	err := ctx.Bind(&form)
 	if err != nil {
@@ -88,7 +90,7 @@ func ChangePassUser(ctx *gin.Context) {
 		lib.HandlerNotFound(ctx, "Data not found")
 		return
 	}
-	user := models.FindUserId(userId)
+	user := repository.FindUserId(userId)
 	if err != nil {
 		lib.HandlerNotFound(ctx, "Data not found")
 		return
@@ -100,7 +102,7 @@ func ChangePassUser(ctx *gin.Context) {
 		lib.HandlerBadRequest(ctx, "Please input match password")
 		return
 	} 
-		pass := models.ChangePass(form, userId)
+		pass := repository.ChangePass(form, userId)
 
 		lib.HandlerOk(ctx, "Password has been changed", nil, pass)
 }

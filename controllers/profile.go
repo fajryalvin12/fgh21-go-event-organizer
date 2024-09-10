@@ -6,12 +6,13 @@ import (
 	"github.com/fajryalvin12/fgh21-go-event-organizer/dtos"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/models"
+	"github.com/fajryalvin12/fgh21-go-event-organizer/repository"
 	"github.com/gin-gonic/gin"
 )
 
 func DetailUserProfile(ctx *gin.Context) {
 	userId := ctx.GetInt("userId")
-	profile := models.FindProfileByUserId(userId)
+	profile := repository.FindProfileByUserId(userId)
 
 	lib.HandlerOk(ctx, "Detail user profile", nil, profile)
 }
@@ -21,12 +22,12 @@ func UpdateProfile(ctx *gin.Context) {
 	fmt.Println(form)
 	id := ctx.GetInt("userId")
 
-	bagas := models.EditProfileUsers(models.Users{
+	bagas := repository.EditProfileUsers(models.Users{
 		Email:    form.Email,
 		Username: form.Username,
 	}, id)
 
-	edit := models.ChangeProfileByUserId(models.Profile{
+	edit := repository.ChangeProfileByUserId(models.Profile{
 		FullName:      form.FullName,
 		BirthDate:     form.BirthDate,
 		Gender:        *form.Gender,

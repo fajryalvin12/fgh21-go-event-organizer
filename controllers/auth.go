@@ -6,6 +6,7 @@ import (
 	"github.com/fajryalvin12/fgh21-go-event-organizer/dtos"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/models"
+	"github.com/fajryalvin12/fgh21-go-event-organizer/repository"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +18,7 @@ func AuthLogin(ctx *gin.Context) {
 	var user dtos.FormLogin
 	ctx.Bind(&user)
 
-	found := models.FindUserEmail(user.Email)
+	found := repository.FindUserEmail(user.Email)
 
 	if found == (models.Users{}) {
 		lib.HandlerUnauthorized(ctx, "Wrong Email or Password!")
@@ -47,12 +48,12 @@ func AuthRegister (ctx *gin.Context) {
 	user.Password = form.Password
 	profile.FullName = form.FullName
 
-	createUser:= models.CreateNewUser(user)
+	createUser:= repository.CreateNewUser(user)
 
 	userId := createUser.Id
 	profile.UserId = userId
 
-	createProfile := models.CreateProfile(profile)
+	createProfile := repository.CreateProfile(profile)
 	createProfile.Email = form.Email
 	createProfile.FullName = form.FullName
 	
