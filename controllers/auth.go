@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/models"
@@ -31,10 +30,7 @@ func AuthLogin(ctx *gin.Context) {
 	found := models.FindUserEmail(user.Email)
 
 	if found == (models.Users{}) {
-		ctx.JSON(http.StatusUnauthorized, lib.Response{
-			Success: false,
-			Message: "wrong email or password",
-		})
+		lib.HandlerUnauthorized(ctx, "Wrong Email or Password!")
 		return
 	}
 
@@ -42,18 +38,13 @@ func AuthLogin(ctx *gin.Context) {
 
 	if isVerified {
 		JWToken := lib.GenerateUserIdToken(found.Id)
-		ctx.JSON(http.StatusOK, lib.Response{
-			Success: true,
-			Message: "Login Success!",
-			Results: Token{
-				JWToken,
-			},
-		})
+		lib.HandlerOk(ctx, "Login Success!", nil, Token{JWToken})
 	} else {
-		ctx.JSON(http.StatusUnauthorized, lib.Response{
-			Success: false,
-			Message: "Wrong email or password",
-		})
+		// ctx.JSON(http.StatusUnauthorized, lib.Response{
+		// 	Success: false,
+		// 	Message: "Wrong email or password",
+		// })
+		lib.HandlerUnauthorized(ctx, "Wrong Email or Password!")
 	}
 }
 func AuthRegister (ctx *gin.Context) {
@@ -79,9 +70,10 @@ func AuthRegister (ctx *gin.Context) {
 	createProfile.Email = form.Email
 	createProfile.FullName = form.FullName
 	
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "Register Success",
-		Results: createProfile,
-	})
+	// ctx.JSON(http.StatusOK, lib.Response{
+	// 	Success: true,
+	// 	Message: "Register Success",
+	// 	Results: createProfile,
+	// })
+	lib.HandlerOk(ctx, "Register Success", nil, createProfile)
 }

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/models"
@@ -37,19 +36,12 @@ func CreateTransaction(ctx *gin.Context) {
 
 	data := models.ListOfTransactions(trx.Id)
 
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "Success to create new transaction",
-		Results: data,
-	})
+	lib.HandlerOk(ctx, "Success to create new transaction", nil, data)
 }
 func ListOfTransactionsByUserId (ctx *gin.Context) {
 	user := ctx.GetInt("userId")
 
 	trx := models.FindTransactionByUserId(user)
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "List User Transaction",
-		Results: trx,
-	})
+	lib.HandlerOk(ctx, "List user transactions", nil, trx)
+
 }

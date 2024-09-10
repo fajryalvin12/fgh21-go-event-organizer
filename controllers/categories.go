@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"net/http"
 	"strconv"
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
@@ -10,46 +9,17 @@ import (
 )
 
 func ListAllCategories(ctx *gin.Context) {
-	// search := ctx.Query("search")
-	// limit, _ := strconv.Atoi(ctx.Query("limit"))
-	// page, _ := strconv.Atoi(ctx.Query("page"))
-
-	// if limit == 0 {
-	// 	limit = 5
-	// }
-
 	cat := models.ShowAllCategories()
-	// pageInfo := lib.PageInfo{
-	// 	TotalData: count ,
-	// 	TotalPage: 0,
-	// 	Page: page,
-	// 	Limit: limit,
-	// 	Next: 0,
-	// 	Prev: 0,
-	// }
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "List All Categories",
-		// PageInfo: pageInfo,
-		Results: cat,
-	})
+	lib.HandlerOk(ctx, "List All Categories", nil, cat)
 }
 func SelectCategory (ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	selected := models.ShowCategoryById(id)
 
-
 	if selected.Id != 0 {
-		ctx.JSON(http.StatusOK, lib.Response{
-			Success: true,
-			Message: "Detail Category",
-			Results: selected,
-		})
+		lib.HandlerOk(ctx, "Detail Category", nil, selected)
 	} else {
-		ctx.JSON(http.StatusNotFound, lib.Response{
-			Success: false,
-			Message: "Data not found",
-		})
+		lib.HandlerNotFound(ctx, "Data not found")
 	}
 }
 func AddCategory (ctx *gin.Context) {
@@ -58,11 +28,7 @@ func AddCategory (ctx *gin.Context) {
 	ctx.Bind(&cat)
 	data := models.CreateNewCategory(cat)
 
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "Success created new category",
-		Results: data,
-	})
+	lib.HandlerOk(ctx, "Success created new category", nil, data)
 }
 func UpdateCategory (ctx *gin.Context) {
     id, _  := strconv.Atoi(ctx.Param("id"))
@@ -72,34 +38,19 @@ func UpdateCategory (ctx *gin.Context) {
 	update := models.EditCategory(selected, id)
 
 	if update.Id == 0 {
-		ctx.JSON(http.StatusNotFound, lib.Response{
-			Success: false,
-			Message: "Data not found",
-		})
+		lib.HandlerNotFound(ctx, "Data not found")
 		return
 	}
 
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "Success edit event",
-		Results: update,
-	})
+	lib.HandlerOk(ctx, "Success updated new category", nil, update)
 }
 func DeleteCategory (ctx *gin.Context) {
 	id, _:= strconv.Atoi(ctx.Param("id"))
 
 	delete := models.RemoveCategory(id)
 	if delete.Id == 0 {
-		ctx.JSON(http.StatusNotFound, lib.Response{
-			Success: false,
-			Message: "Cannot delete the data due to failed request",
-		})
+		lib.HandlerBadRequest(ctx, "Cannot delete the data due to failed request")
 		return
 	}
-
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "Success deleted the data",
-		Results: delete,
-	})
+	lib.HandlerOk(ctx, "Success deleted the data", nil, delete)
 }

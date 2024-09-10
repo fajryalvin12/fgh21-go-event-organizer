@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"fmt"
-	"net/http"
 	"strconv"
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
@@ -14,34 +12,21 @@ func ListAllWishlist (c *gin.Context) {
 	id := c.GetInt("userId")
 	list := models.FindAllUsersWishlist(id)
 
-	c.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "List of Wishlist",
-		Results: list,
-	})
+	lib.HandlerOk(c, "Details of Wishlist", nil, list)
 }
 func CreateWishlist(c *gin.Context) {
 	form := models.Wishlist{}
 
 	c.Bind(&form)
 	form.UserId = c.GetInt("userId")
-	fmt.Println(form.UserId)
 	wish := models.AddNewWishlist(form)
 
-	c.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "New Wishlist has been added",
-		Results: wish,
-	})
+	lib.HandlerOk(c, "New wishlist has been added", nil, wish)
 }
 func RemoveWishlist (c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	del := models.DeleteTheWishlist(id)
 
-	c.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "The wishlist has been removed",
-		Results: del,
-	})
+	lib.HandlerOk(c, "The wishlist has been removed", nil, del)
 }

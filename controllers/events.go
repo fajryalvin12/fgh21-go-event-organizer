@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"net/http"
 	"strconv"
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
@@ -11,28 +10,16 @@ import (
 
 func ListEvents(ctx *gin.Context) {
 	events := models.FindAllEvents()
-
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "List all events",
-		Results: events,
-	})
+	lib.HandlerOk(ctx, "List all events", nil, events)
 }
 func DetailEvent (ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	selected := models.FindEventById(id)
 
 	if selected.Id != 0 {
-		ctx.JSON(http.StatusOK, lib.Response{
-			Success: true,
-			Message: "Detail event",
-			Results: selected,
-		})
+		lib.HandlerOk(ctx, "Detail event", nil, selected)
 	} else {
-		ctx.JSON(http.StatusOK, lib.Response{
-			Success: false,
-			Message: "Data not found",
-		})
+		lib.HandlerNotFound(ctx, "Data not found")
 	}
 }
 func CreateEvent (ctx *gin.Context) {
@@ -40,17 +27,10 @@ func CreateEvent (ctx *gin.Context) {
 	ctx.Bind(&newEvent)
 
 	createdBy := ctx.GetInt("userId")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
 	newEvent.CreatedBy = &createdBy
 
 	result := models.CreateNewEvent(newEvent)
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "Success create new event!",
-		Results: result,
-	})
+	lib.HandlerOk(ctx, "Success create new event!", nil, result)
 }
 func UpdateEvent (ctx *gin.Context) { 
     id, _  := strconv.Atoi(ctx.Param("id"))
@@ -60,54 +40,28 @@ func UpdateEvent (ctx *gin.Context) {
 	updated := models.EditTheEvent(selected, id)
 
 	if updated.Id == 0 {
-		ctx.JSON(http.StatusNotFound, lib.Response{
-			Success: false,
-			Message: "Event not found",
-		})
+		lib.HandlerNotFound(ctx, "Event not found")
 		return
 	}
-
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "Success edit event",
-		Results: updated,
-	})
+	lib.HandlerOk(ctx, "Success edit event", nil, updated)
 }
 func DeleteEvent (ctx *gin.Context) {
 	id, _:= strconv.Atoi(ctx.Param("id"))
 
 	delete := models.RemoveTheEvent(id)
 	if delete.Id == 0 {
-		ctx.JSON(http.StatusNotFound, lib.Response{
-			Success: false,
-			Message: "Cannot delete the data due to failed request",
-		})
+		lib.HandlerNotFound(ctx, "Cannot delete the data due to failed request")
 		return
 	}
-
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "Success deleted the data",
-		Results: delete,
-	})
+	lib.HandlerOk(ctx, "Success deleted the data", nil, delete)
 }
 func ListAllSectionsByEvent(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 
 	sections := models.FindAllSectionsByEventId(id)
-
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "List All sections",
-		Results: sections,
-	})
+	lib.HandlerOk(ctx, "List all sections", nil, sections)
 }
 func ListPaymentMethods (ctx *gin.Context) {
 	payment := models.FindAllPaymentMethods()
-
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "List All Payment Methods",
-		Results: payment,
-	})
+	lib.HandlerOk(ctx, "List all payment methods", nil, payment)
 }

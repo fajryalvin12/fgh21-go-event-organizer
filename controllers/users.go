@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"net/http"
 	"strconv"
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
@@ -21,27 +20,16 @@ func ListAllUsers(c *gin.Context) {
 
 	users := models.FindAllUsers(search, limit, page)
 
-	c.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "OK",
-		Results: users,
-	})
+	lib.HandlerOk(c, "List all users", nil, users)
 }
 func DetailUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	selected := models.FindUserId(id)
 
 	if selected.Id != 0 {
-		c.JSON(http.StatusOK, lib.Response{
-			Success: true,
-			Message: "Detail User",
-			Results: selected,
-		})
+		lib.HandlerOk(c, "Detail user", nil, selected)
 	} else {
-		c.JSON(http.StatusNotFound, lib.Response{
-			Success: false,
-			Message: "Data not found",
-		})
+		lib.HandlerNotFound(c, "Data not found")
 	}
 }
 func CreateUser(c *gin.Context) {
@@ -54,12 +42,7 @@ func CreateUser(c *gin.Context) {
 	}
 
 	data := models.CreateNewUser(user)
-
-	c.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "Create data success",
-		Results: data,
-	})
+	lib.HandlerOk(c, "Create data success", nil, data)
 }
 func UpdateUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
@@ -69,92 +52,55 @@ func UpdateUser(c *gin.Context) {
 	data := models.EditTheUser(user, id)
 
 	if data.Id == 0 {
-		c.JSON(http.StatusNotFound, lib.Response{
-			Success: false,
-			Message: "Cannot find the user with this id",
-		})
+		lib.HandlerBadRequest(c, "Cannot find the user with this id")
 		return
 	}
 
-	c.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "Success editing user",
-		Results: data,
-	})
+	lib.HandlerOk(c, "Success edit user", nil, data)
 }
 func DeleteUser(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	selectUser := models.FindUserId(id)
 
 	if err != nil {
-		// ngapain
-	}
-
-	if err != nil {
-		ctx.JSON(http.StatusBadGateway, lib.Response{
-			Success: false,
-			Message: "Data not found",
-		})
+		lib.HandlerNotFound(ctx, "Data not found")
 		return
 	}
 
 	err = models.RemoveUser(models.Users{}, id)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, lib.Response{
-			Success: false,
-			Message: "Id not found",
-		})
+		lib.HandlerBadRequest(ctx, "Id not found")
 		return
 	}
 
-	ctx.JSON(http.StatusOK, lib.Response{
-		Success: true,
-		Message: "Successfully deleted the data!",
-		Results: selectUser,
-	})
+	lib.HandlerOk(ctx, "Success remove the user", nil, selectUser)
 }
 func ChangePassUser(ctx *gin.Context) {
 	form := models.ChangePassword{}
 	userId := ctx.GetInt("userId")
 	err := ctx.Bind(&form)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, lib.Response{
-			Success: false,
-			Message: "Please input the password",
-		})
+		lib.HandlerBadRequest(ctx, "Please input the password")
 		return
 	}
 
 	if userId <= 0 {
-		ctx.JSON(http.StatusNotFound, lib.Response{
-			Success: false,
-			Message: "Data not found",
-		})
+		lib.HandlerNotFound(ctx, "Data not found")
 		return
 	}
 	user := models.FindUserId(userId)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, lib.Response{
-			Success: false,
-			Message: "User not found",
-		})
+		lib.HandlerNotFound(ctx, "Data not found")
 		return
 	}
 
 	isVerified := lib.Verify(form.OldPassword, user.Password)
 
 	if !isVerified {
-		ctx.JSON(http.StatusBadRequest, lib.Response{
-			Success: false,
-			Message: "Please input match password",
-		})
+		lib.HandlerBadRequest(ctx, "Please input match password")
 		return
 	} 
 		pass := models.ChangePass(form, userId)
-		ctx.JSON(http.StatusOK, lib.Response{
-			Success: true,
-			Message: "Password has been changed",
-			Results: pass,
-		})
-	
+
+		lib.HandlerOk(ctx, "Password has been changed", nil, pass)
 }
