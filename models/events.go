@@ -4,18 +4,19 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/fajryalvin12/fgh21-go-event-organizer/dtos"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
 	"github.com/jackc/pgx/v5"
 )
 
 type Events struct {
 	Id          int    `json:"id" db:"id"`
-	Image       string `json:"image" form:"image" db:"image"`
-	Title       string `json:"title" form:"title" db:"title"`
-	Date        string `json:"date" form:"date" db:"date"`
-	Description string `json:"description" form:"description" db:"description"`
-	LocationId  *int   `json:"location_id" form:"location_id" db:"location_id"`
-	CreatedBy   *int   `json:"created_by" form:"created_by" db:"created_by"`
+	Image       string `json:"image" db:"image"`
+	Title       string `json:"title" db:"title"`
+	Date        string `json:"date" db:"date"`
+	Description string `json:"description" db:"description"`
+	LocationId  *int   `json:"location_id" db:"location_id"`
+	CreatedBy   *int   `json:"created_by" db:"created_by"`
 }
 type Section struct {
 	Id 				int 	`json:"id"`
@@ -57,13 +58,12 @@ func FindEventById (id int) Events {
 	}
 	return userEvent
 }
-func CreateNewEvent(data Events) Events {
+func CreateNewEvent(data dtos.Events) Events {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
 	sql := `INSERT INTO events ("image", "title", "date", "description") VALUES 
 	($1, $2, $3, $4) RETURNING id, "image", "title", "date", "description"`
-	// db.Exec(context.Background(), sql, data.Image, data.Title, data.Date, data.Description)
 
 	query := db.QueryRow(context.Background(), sql, data.Image, data.Title, data.Date, data.Description)
 

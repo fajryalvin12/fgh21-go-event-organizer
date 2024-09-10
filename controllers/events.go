@@ -3,6 +3,7 @@ package controllers
 import (
 	"strconv"
 
+	"github.com/fajryalvin12/fgh21-go-event-organizer/dtos"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/models"
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,7 @@ func DetailEvent (ctx *gin.Context) {
 	}
 }
 func CreateEvent (ctx *gin.Context) {
-	newEvent := models.Events{}
+	newEvent := dtos.Events{}
 	ctx.Bind(&newEvent)
 
 	createdBy := ctx.GetInt("userId")

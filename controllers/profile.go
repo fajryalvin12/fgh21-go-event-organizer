@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 
+	"github.com/fajryalvin12/fgh21-go-event-organizer/dtos"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/models"
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,7 @@ func DetailUserProfile(ctx *gin.Context) {
 	lib.HandlerOk(ctx, "Detail user profile", nil, profile)
 }
 func UpdateProfile(ctx *gin.Context) {
-	form := models.JoinProfile{}
+	form := dtos.JoinProfile{}
 	ctx.Bind(&form)
 	fmt.Println(form)
 	id := ctx.GetInt("userId")

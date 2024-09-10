@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 
+	"github.com/fajryalvin12/fgh21-go-event-organizer/dtos"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/lib"
 	"github.com/fajryalvin12/fgh21-go-event-organizer/models"
 	"github.com/gin-gonic/gin"
@@ -11,20 +12,9 @@ import (
 type Token struct {
 	JWToken string `json:"token"`
 }
-type FormRegister struct {
-	FullName		string `form:"fullName"`
-	Email			string `form:"email"`
-	Password		string `form:"password"`
-	ConfirmPassword	string `form:"confirmPassword" binding:"eqfield=Password"`
-	Username 		string `form:"username"`
-}
-type FormLogin struct {
-	Email			string `form:"email"`
-	Password		string `form:"password"`
-}
 
 func AuthLogin(ctx *gin.Context) {
-	var user FormLogin
+	var user dtos.FormLogin
 	ctx.Bind(&user)
 
 	found := models.FindUserEmail(user.Email)
@@ -40,15 +30,11 @@ func AuthLogin(ctx *gin.Context) {
 		JWToken := lib.GenerateUserIdToken(found.Id)
 		lib.HandlerOk(ctx, "Login Success!", nil, Token{JWToken})
 	} else {
-		// ctx.JSON(http.StatusUnauthorized, lib.Response{
-		// 	Success: false,
-		// 	Message: "Wrong email or password",
-		// })
 		lib.HandlerUnauthorized(ctx, "Wrong Email or Password!")
 	}
 }
 func AuthRegister (ctx *gin.Context) {
-	form := FormRegister{}
+	form := dtos.FormRegister{}
 	var user = models.Users{}
 	var profile = models.Profile{}
 
@@ -70,10 +56,5 @@ func AuthRegister (ctx *gin.Context) {
 	createProfile.Email = form.Email
 	createProfile.FullName = form.FullName
 	
-	// ctx.JSON(http.StatusOK, lib.Response{
-	// 	Success: true,
-	// 	Message: "Register Success",
-	// 	Results: createProfile,
-	// })
 	lib.HandlerOk(ctx, "Register Success", nil, createProfile)
 }
