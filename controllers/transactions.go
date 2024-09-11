@@ -36,5 +36,4 @@ func ListOfTransactionsByUserId (ctx *gin.Context) {
 
 	trx := repository.FindTransactionByUserId(user)
 	lib.HandlerOk(ctx, "List user transactions", nil, trx)
-
 }

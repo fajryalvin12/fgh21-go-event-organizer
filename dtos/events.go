@@ -6,5 +6,12 @@ type Events struct {
 	Date        string `form:"date"`
 	Description string `form:"description"`
 	LocationId  *int   `form:"location_id"`
-	CreatedBy   *int   `form:"created_by"`
+	CreatedBy   *int   `json:"created_by" form:"created_by"`
+}
+
+type FormSection struct {
+	EventId      int    `form:"eventId"`
+	SectionName  string `form:"name"`
+	Quantity     int    `form:"quantity"`
+	SectionPrice int    `form:"price"`
 }

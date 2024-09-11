@@ -87,6 +87,5 @@ func ChangeProfileByUserId(data models.Profile, id int) models.JoinProfile {
 	db.Exec(context.Background(), sql, data.FullName, data.PhoneNumber, data.Gender, data.Profession, data.NationalityId, data.BirthDate, id)
 	
 	result := FindProfileByUserId(id)
-	// fmt.Println(result)
 	return result
 }

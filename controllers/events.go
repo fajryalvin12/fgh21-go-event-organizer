@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/fajryalvin12/fgh21-go-event-organizer/dtos"
@@ -30,8 +31,15 @@ func CreateEvent (ctx *gin.Context) {
 
 	createdBy := ctx.GetInt("userId")
 	newEvent.CreatedBy = &createdBy
+	fmt.Println(&createdBy)
 
-	result := repository.CreateNewEvent(newEvent)
+	result := repository.CreateNewEvent(models.Events{
+		Image: newEvent.Image,
+		Title: newEvent.Title,
+		Date: newEvent.Date,
+		Description: newEvent.Description,
+		CreatedBy: &createdBy,
+	})
 	lib.HandlerOk(ctx, "Success create new event!", nil, result)
 }
 func UpdateEvent (ctx *gin.Context) { 
@@ -49,13 +57,27 @@ func UpdateEvent (ctx *gin.Context) {
 }
 func DeleteEvent (ctx *gin.Context) {
 	id, _:= strconv.Atoi(ctx.Param("id"))
+	createdBy := ctx.GetInt("userId")
+
+	event := repository.FindEventById(id)
+
+	if createdBy != *event.CreatedBy {
+		lib.HandlerBadRequest(ctx, "Cannot deleted event from another user")
+		return
+	}
 
 	delete := repository.RemoveTheEvent(id)
 	if delete.Id == 0 {
 		lib.HandlerNotFound(ctx, "Cannot delete the data due to failed request")
 		return
 	}
+	fmt.Println(delete)
+
 	lib.HandlerOk(ctx, "Success deleted the data", nil, delete)
+}
+func ListPaymentMethods (ctx *gin.Context) {
+	payment := repository.FindAllPaymentMethods()
+	lib.HandlerOk(ctx, "List all payment methods", nil, payment)
 }
 func ListAllSectionsByEvent(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
@@ -63,7 +85,31 @@ func ListAllSectionsByEvent(ctx *gin.Context) {
 	sections := repository.FindAllSectionsByEventId(id)
 	lib.HandlerOk(ctx, "List all sections", nil, sections)
 }
-func ListPaymentMethods (ctx *gin.Context) {
-	payment := repository.FindAllPaymentMethods()
-	lib.HandlerOk(ctx, "List all payment methods", nil, payment)
+func CreateNewSectionByEventId (ctx *gin.Context) {
+	form := dtos.FormSection{}
+
+	fmt.Println(form.EventId)
+	err := ctx.Bind(&form)
+
+	if err != nil {
+		lib.HandlerBadRequest(ctx, "Please input the data first")
+		return
+	}
+
+	sections, err := repository.CreateNewSection(models.Section{
+		EventId: form.EventId,
+		SectionName: form.SectionName,
+		Quantity: form.Quantity,
+		SectionPrice: form.SectionPrice,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		lib.HandlerBadRequest(ctx, "data not proper")
+		return
+	}
+
+	data := repository.FindSectionByEventId(sections.Id)
+
+	lib.HandlerOk(ctx, "Success add new section", nil, data)
 }

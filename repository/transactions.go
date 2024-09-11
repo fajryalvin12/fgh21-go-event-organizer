@@ -23,7 +23,6 @@ func CreateNewTransactions(data models.Transaction) models.Transaction {
 		&results.PaymentMethodId,
 		&results.UserId,
 	)
-	fmt.Println(results)
 	return results
 }
 func ListOfTransactions (id int) models.DetailTransaction {
