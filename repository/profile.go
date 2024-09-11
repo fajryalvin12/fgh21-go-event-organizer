@@ -52,40 +52,66 @@ func ListAllProfile() []models.JoinProfile {
 	data, _ := pgx.CollectRows(rows, pgx.RowToStructByPos[models.JoinProfile])
 	return data
 }
-func FindProfileByUserId(id int) models.JoinProfile {
+func FindProfileByUserId(id int) (models.JoinProfile, error) {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
-	sql := `select "u"."id", "p"."full_name","u"."username", "u"."email", "p"."gender","p"."phone_number", "p"."profession", "p"."nationality_id", "p"."birth_date"  
+	sql := `select "u"."id","p"."picture", "p"."full_name","u"."username", "u"."email", "p"."gender","p"."phone_number", "p"."profession", "p"."nationality_id", "p"."birth_date"  
 	from "users" "u" 
 	join "profile" "p"
 	on "u"."id" = "p"."user_id" where "u"."id" = $1`
 
-	row := db.QueryRow(context.Background(), sql, id)
+	query, err := db.Query(context.Background(), sql, id)
+	if err != nil {
+		return models.JoinProfile{}, err
+	}
+	
+	row, err := pgx.CollectOneRow(query, pgx.RowToStructByName[models.JoinProfile])
+	
+	if err != nil {
+		fmt.Println("sini")
+		return models.JoinProfile{}, err
+	}
 
-	var result models.JoinProfile
-	row.Scan(
-		&result.Id,
-		&result.FullName,
-		&result.Username,
-		&result.Email,
-		&result.Gender,
-		&result.PhoneNumber,
-		&result.Profession,
-		&result.Nationality,
-		&result.BirthDate,
-	)
-
-	return result
+	return row, nil
 }
-func ChangeProfileByUserId(data models.Profile, id int) models.JoinProfile {
+func ChangeProfileByUserId(data models.Profile, id int) models.Profile {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
-	sql := `update "profile" set ("full_name", "phone_number", "gender", "profession", "nationality_id", "birth_date") = ($1, $2, $3, $4, $5, $6) where "user_id"=$7`
+	sql := `update "profile" set ("full_name", "phone_number", "gender", "profession", "nationality_id", "birth_date") = ($1, $2, $3, $4, $5, $6) where "user_id"=$7 returning *`
 
-	db.Exec(context.Background(), sql, data.FullName, data.PhoneNumber, data.Gender, data.Profession, data.NationalityId, data.BirthDate, id)
+	query, err := db.Query(context.Background(), sql, data.FullName, data.PhoneNumber, data.Gender, data.Profession, data.NationalityId, data.BirthDate, id)
+
+	if err != nil {
+		return models.Profile{}
+	}
+
+	row, err := pgx.CollectOneRow(query, pgx.RowToStructByName[models.Profile])
+
+	if err != nil {
+		return models.Profile{}
+	}
 	
-	result := FindProfileByUserId(id)
-	return result
+	return row
+}
+func UploadProfilePicture(data models.Profile, id int) (models.Profile, error) {
+	db := lib.DB()
+	defer db.Close(context.Background())
+
+	sql := `UPDATE profile SET picture = $1 WHERE user_id = $2 RETURNING *`
+
+	query, err := db.Query(context.Background(), sql, data.Picture, id)
+
+	if err != nil {
+		return models.Profile{}, nil
+	}
+
+	row, err := pgx.CollectOneRow(query, pgx.RowToStructByPos[models.Profile])
+
+	if err != nil {
+		return models.Profile{}, nil
+	}
+
+	return row, nil
 }

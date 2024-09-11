@@ -79,6 +79,8 @@ func EditTheUser(data models.Users, id int) models.Users {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
+	data.Password = lib.Encrypt(data.Password)
+
 	dataSql := `update "users" set (email , username, password) = ($1, $2, $3) where id=$4 returning "id", "email", "username", "password"`
 
 	query := db.QueryRow(context.Background(), dataSql, data.Email, data.Password, data.Username, id)
@@ -97,18 +99,24 @@ func EditProfileUsers(data models.Users, id int) models.Users {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
-	dataSql := `update "users" set (email , username) = ($1, $2) where id=$3 returning "id", "email", "username"`
+	data.Password = lib.Encrypt(data.Password)
 
-	query := db.QueryRow(context.Background(), dataSql, data.Email, data.Username, id)
+	sql := `update "users" set (email , username) = ($1, $2) where id=$3 returning *`
 
-	var result models.Users
-	query.Scan(
-		&result.Id,
-		&result.Email,
-		&result.Username,
-	)
+	// query := db.QueryRow(context.Background(), sql, data.Email, data.Username, id)
 
-	return result
+	// var result models.Users
+	// query.Scan(
+	// 	&result.Id,
+	// 	&result.Email,
+	// 	&result.Username,
+	// )
+
+	query, _ := db.Query(context.Background(), sql, data.Email, data.Username, id)
+
+	user, _ := pgx.CollectOneRow(query, pgx.RowToStructByName[models.Users])
+
+	return user
 }
 func RemoveUser(data models.Users, id int) error {
 	db := lib.DB()

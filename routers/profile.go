@@ -10,4 +10,5 @@ func ProfileRouter(r *gin.RouterGroup) {
 	r.Use(middlewares.AuthMiddleware())
 	r.GET("", controllers.DetailUserProfile)
 	r.PATCH("", controllers.UpdateProfile)
+	r.PATCH("/upload-img", controllers.UploadImage)
 }
