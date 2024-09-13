@@ -80,14 +80,14 @@ func UploadImage (ctx *gin.Context) {
 	}
 
 	newFile := uuid.New().String() + fileExt
-
 	directory := "./img/profile/"
+
 	if err := ctx.SaveUploadedFile(file, directory + newFile); err != nil {
 		lib.HandlerBadRequest(ctx, "Upload failed!")
 		return
 	}
 
-	fileName := "http://localhost:8888/img/profile" + newFile
+	fileName := "http://localhost:8888/img/profile/" + newFile
 
 	delExistingImage, _ := repository.FindProfileByUserId(id)
 	if delExistingImage.Picture != nil {
@@ -96,6 +96,6 @@ func UploadImage (ctx *gin.Context) {
 	}
 
 	profile, _ := repository.UploadProfilePicture(models.Profile{Picture: &fileName}, id)
-
+	fmt.Println(profile)
 	lib.HandlerOk(ctx, "Profile picture has been changed", nil, profile)
 }

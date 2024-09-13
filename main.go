@@ -8,6 +8,7 @@ import (
 func main() {
 
 	r := gin.Default()
+	r.Static("/img/profile/", "./img/profile/")
 	r.Use(corsMiddleware())
 	routers.RouterCombine(r)
 

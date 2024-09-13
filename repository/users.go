@@ -103,15 +103,6 @@ func EditProfileUsers(data models.Users, id int) models.Users {
 
 	sql := `update "users" set (email , username) = ($1, $2) where id=$3 returning *`
 
-	// query := db.QueryRow(context.Background(), sql, data.Email, data.Username, id)
-
-	// var result models.Users
-	// query.Scan(
-	// 	&result.Id,
-	// 	&result.Email,
-	// 	&result.Username,
-	// )
-
 	query, _ := db.Query(context.Background(), sql, data.Email, data.Username, id)
 
 	user, _ := pgx.CollectOneRow(query, pgx.RowToStructByName[models.Users])
