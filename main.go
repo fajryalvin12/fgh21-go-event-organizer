@@ -12,7 +12,7 @@ func main() {
 	r.Use(corsMiddleware())
 	routers.RouterCombine(r)
 
-	r.Run("localhost:8888")
+	r.Run("0.0.0.0:8888")
 }
 
 func corsMiddleware() gin.HandlerFunc {
