@@ -87,7 +87,7 @@ func UploadImage (ctx *gin.Context) {
 		return
 	}
 
-	fileName := "http://103.93.58.89:21212/img/profile/" + newFile
+	fileName := "/img/profile/" + newFile
 
 	delExistingImage, _ := repository.FindProfileByUserId(id)
 	if delExistingImage.Picture != nil {
