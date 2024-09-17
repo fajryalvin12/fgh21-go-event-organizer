@@ -87,3 +87,15 @@ Tickhub is an easy way to order an event from a distance place. Without order on
 | `wishlist`              | `GET`    | `Get a list of wishlist data`                          |
 | `wishlist`              | `POST`   | `Create new wishlist data`                             |
 | `wishlist/:id`          | `DELETE` | `Remove the selected wishlist data`                    |
+
+## Contributing
+
+Feel free to contribute the repo for better code!
+
+## Authors
+
+- Me
+
+## Feedback
+
+If you have any feedback, please reach out to us at fajryalvin12@gmail.com
