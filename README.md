@@ -19,7 +19,7 @@ Tickhub is an easy way to order an event from a distance place. Without order on
 <h3>1. Clone this repository</h3>
 
 ```sh
-  git clone <github-url>
+  git clone <https://github.com/fajryalvin12/fgh21-go-event-organizer.git>
   cd <project-name>
 ```
 
