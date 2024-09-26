@@ -9,16 +9,16 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func FindAllEvents() []models.Events {
+func FindEventWithPagination(search string, limit int, page int) []models.Events {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
-	showSql := `select * from "events" order by "id" asc`
-
-	rows, _ := db.Query(
-		context.Background(),
-		showSql,
-	)
+	offset := (page - 1) * limit
+	sql := `SELECT * FROM events WHERE "title" ILIKE '%' || $1 || '%'
+		LIMIT $2
+		OFFSET $3
+		`
+	rows, _ := db.Query(context.Background(), sql, search, limit, offset)
 	
 	events, err := pgx.CollectRows(rows, pgx.RowToStructByPos[models.Events])
 
@@ -32,14 +32,12 @@ func FindEventById (id int) models.Events {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
-	event := FindAllEvents()
-	userEvent := models.Events{}
-	for _, v := range event {
-		if v.Id == id {
-			userEvent = v
-		}
-	}
-	return userEvent
+	sql := `SELECT * FROM events WHERE id=$1`
+	query, _ := db.Query(context.Background(), sql, id)
+
+	row, _ := pgx.CollectOneRow(query, pgx.RowToStructByName[models.Events])
+
+	return row
 }
 func CreateNewEvent(data models.Events) models.Events {
 	db := lib.DB()

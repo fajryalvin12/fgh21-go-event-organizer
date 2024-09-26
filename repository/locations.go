@@ -24,3 +24,18 @@ func ShowAllLocation() []models.Locations {
 
 	return rows
 }
+func GetOneLocationById(id int) (models.Locations, error){
+	db := lib.DB()
+	defer db.Close(context.Background())
+
+	sql := `SELECT * FROM locations WHERE id=$1`
+	query, err := db.Query(context.Background(), sql, id)
+	if err != nil {
+		return models.Locations{}, err
+	}
+	row, err := pgx.CollectOneRow(query, pgx.RowToStructByName[models.Locations])
+	if err != nil {
+		return models.Locations{}, err
+	}
+	return row, nil
+}

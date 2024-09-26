@@ -1,11 +1,11 @@
-name: webapp
+name: tickhub
 services:
   backend:
-    image: ghcr.io/fulsep/backend:latest
+    image: golang:1.23-alpine
     ports:
       - 8888:8888
   frontend:
-    image: ghcr.io/fulsep/frontend:latest
+    image: node:lts-alpine
     ports:
       - 3000:3000
   db:

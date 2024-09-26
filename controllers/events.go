@@ -11,8 +11,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ListEvents(ctx *gin.Context) {
-	events := repository.FindAllEvents()
+func ListEventsWithPagination(ctx *gin.Context) {
+	search := ctx.Query("search")
+	page, _ := strconv.Atoi(ctx.Query("page"))
+	limit, _ := strconv.Atoi(ctx.Query("limit"))
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 5
+	}
+
+	events := repository.FindEventWithPagination(search, limit, page)
 	lib.HandlerOk(ctx, "List all events", nil, events)
 }
 func DetailEvent (ctx *gin.Context) {

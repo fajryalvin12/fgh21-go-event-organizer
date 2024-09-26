@@ -10,7 +10,16 @@ import (
 )
 
 func ListAllCategories(ctx *gin.Context) {
-	cat := repository.ShowAllCategories()
+	search := ctx.Query("search")
+	page, _ := strconv.Atoi(ctx.Query("page"))
+	limit, _ := strconv.Atoi(ctx.Query("limit"))
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 3
+	}
+	cat := repository.ShowAllCategories(search, limit, page)
 	lib.HandlerOk(ctx, "List All Categories", nil, cat)
 }
 func SelectCategory (ctx *gin.Context) {

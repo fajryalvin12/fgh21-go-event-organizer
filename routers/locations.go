@@ -7,4 +7,5 @@ import (
 
 func LocationsRouter(r *gin.RouterGroup) {
 	r.GET("", controllers.ListAllLocations)
+	r.GET("/:id", controllers.DetailOneLocation)
 }
