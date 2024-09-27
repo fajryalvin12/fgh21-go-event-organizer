@@ -123,3 +123,12 @@ func CreateNewSectionByEventId (ctx *gin.Context) {
 
 	lib.HandlerOk(ctx, "Success add new section", nil, data)
 }
+func ShowEventsByCategory (ctx *gin.Context) {
+	id, _ := strconv.Atoi(ctx.Param("id"))
+	cat, err := repository.FindEventFromCategory(id)
+	if err != nil {
+		lib.HandlerNotFound(ctx, "Data not found")
+		return
+	}
+	lib.HandlerOk(ctx, "List The Events from Selected Category", nil, cat)
+}

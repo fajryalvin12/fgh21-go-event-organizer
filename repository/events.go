@@ -130,3 +130,23 @@ func CreateNewSection (data models.Section) (models.Section, error) {
 
 	return row, err
 }
+func FindEventFromCategory (id int) ([]models.Events, error) {
+	db := lib.DB()
+	defer db.Close(context.Background())
+
+	sql := `SELECT ec.id, e.image, e.title, e."date", e.description, e.location_id, e.created_by FROM categories c
+			JOIN event_categories ec ON ec.event_id = c.id
+			JOIN events e ON ec.event_id = e.id
+			WHERE ec.categories_id = $1;`
+	
+	query, err := db.Query(context.Background(), sql, id)
+	if err != nil {
+		return []models.Events{}, err
+	}
+
+	rows, err := pgx.CollectRows(query, pgx.RowToStructByName[models.Events])
+	if err != nil {
+		return []models.Events{}, err
+	}
+	return rows, err
+}

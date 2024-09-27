@@ -15,4 +15,5 @@ func EventsRouter(r *gin.RouterGroup) {
 	r.GET("/payment_method", controllers.ListPaymentMethods)
 	r.GET("/section/:id", controllers.ListAllSectionsByEvent)
 	r.POST("/section", controllers.CreateNewSectionByEventId)
+	r.GET("/category/:id", controllers.ShowEventsByCategory)
 }

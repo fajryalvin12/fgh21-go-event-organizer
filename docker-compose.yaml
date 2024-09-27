@@ -3,11 +3,11 @@ services:
   backend:
     image: golang:1.23-alpine
     ports:
-      - 8888:8888
+      - 8000:8888
   frontend:
     image: node:lts-alpine
     ports:
-      - 3000:3000
+      - 3000:5173
   db:
     image: postgres:latest
     environment:
