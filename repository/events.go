@@ -9,18 +9,20 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func FindEventWithPagination(search string, limit int, page int) []models.Events {
+func FindEventWithPagination(search string, limit int, page int) []models.EventLocation {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
 	offset := (page - 1) * limit
-	sql := `SELECT * FROM events WHERE "title" ILIKE '%' || $1 || '%'
-		LIMIT $2
-		OFFSET $3
-		`
+	sql := `SELECT e.id, e.image, e.title, e.date, e.description, l.name as location, e.created_by FROM events e
+			JOIN locations l ON e.location_id = l.id
+			WHERE e.title ILIKE '%' || $1 || '%'
+			LIMIT $2
+			OFFSET $3;
+			`
 	rows, _ := db.Query(context.Background(), sql, search, limit, offset)
 	
-	events, err := pgx.CollectRows(rows, pgx.RowToStructByPos[models.Events])
+	events, err := pgx.CollectRows(rows, pgx.RowToStructByPos[models.EventLocation])
 
 	if err != nil {
 		fmt.Println(err)
@@ -28,16 +30,27 @@ func FindEventWithPagination(search string, limit int, page int) []models.Events
 
 	return events
 }
-func FindEventById (id int) models.Events {
+func FindEventById (id int) (models.EventLocation, error) {
 	db := lib.DB()
 	defer db.Close(context.Background())
 
-	sql := `SELECT * FROM events WHERE id=$1`
-	query, _ := db.Query(context.Background(), sql, id)
+	sql := `SELECT e.id, e.image, e.title, e.date, e.description, l.name as location, e.created_by FROM events e
+	JOIN locations l ON e.location_id = l.id
+	WHERE e.id=$1
+	`
+	query, err := db.Query(context.Background(), sql, id)
 
-	row, _ := pgx.CollectOneRow(query, pgx.RowToStructByName[models.Events])
+	if err != nil {
+		return models.EventLocation{}, err
+	}
 
-	return row
+	row, err := pgx.CollectOneRow(query, pgx.RowToStructByName[models.EventLocation])
+	
+	if err != nil {
+		return models.EventLocation{}, err
+	}
+
+	return row, err
 }
 func CreateNewEvent(data models.Events) models.Events {
 	db := lib.DB()
@@ -75,11 +88,11 @@ func EditTheEvent(data models.Events, id int) models.Events {
 	data.Id = id
 	return data
 }
-func RemoveTheEvent (id int) models.Events {
+func RemoveTheEvent (id int) models.EventLocation {
 	db := lib.DB()
     defer db.Close(context.Background())
 
-	event := FindEventById(id)
+	event, _ := FindEventById(id)
 
 	sql := `delete from "events" where "id" = $1`
 	db.Exec(context.Background(), sql, id)

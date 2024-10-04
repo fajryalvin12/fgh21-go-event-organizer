@@ -27,13 +27,20 @@ func ListEventsWithPagination(ctx *gin.Context) {
 }
 func DetailEvent (ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
-	selected := repository.FindEventById(id)
+	selected, err := repository.FindEventById(id)
 
-	if selected.Id != 0 {
-		lib.HandlerOk(ctx, "Detail event", nil, selected)
-	} else {
+	if err != nil {
 		lib.HandlerNotFound(ctx, "Data not found")
+		return
 	}
+
+		lib.HandlerOk(ctx, "Detail event", nil, selected)
+
+	// if selected.Id != 0 {
+	// 	lib.HandlerOk(ctx, "Detail event", nil, selected)
+	// } else {
+	// 	lib.HandlerNotFound(ctx, "Data not found")
+	// }
 }
 func CreateEvent (ctx *gin.Context) {
 	newEvent := dtos.Events{}
@@ -69,7 +76,7 @@ func DeleteEvent (ctx *gin.Context) {
 	id, _:= strconv.Atoi(ctx.Param("id"))
 	createdBy := ctx.GetInt("userId")
 
-	event := repository.FindEventById(id)
+	event, _ := repository.FindEventById(id)
 
 	if createdBy != *event.CreatedBy {
 		lib.HandlerBadRequest(ctx, "Cannot deleted event from another user")
