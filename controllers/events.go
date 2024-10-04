@@ -35,12 +35,6 @@ func DetailEvent (ctx *gin.Context) {
 	}
 
 		lib.HandlerOk(ctx, "Detail event", nil, selected)
-
-	// if selected.Id != 0 {
-	// 	lib.HandlerOk(ctx, "Detail event", nil, selected)
-	// } else {
-	// 	lib.HandlerNotFound(ctx, "Data not found")
-	// }
 }
 func CreateEvent (ctx *gin.Context) {
 	newEvent := dtos.Events{}

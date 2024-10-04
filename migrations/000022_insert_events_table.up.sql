@@ -67,4 +67,39 @@ INSERT INTO events ("image", "title", "date", "description", "location_id") VALU
 '2024-08-01',
 'Join us for a vibrant event filled with scenic views, lively entertainment, and a chance to discover the charm of Malioboro like never before!',
 6
+),
+(
+'https://i.pinimg.com/564x/a7/02/1f/a7021f1fdfa46a54d1a669863ee996e1.jpg',
+'Dua Lipa Concert',
+'2024-11-09',
+'Dua Lipa’s concert is a night you won’t want to miss! Enjoy her amazing music live and feel the energy of the crowd.',
+1
+),
+(
+'https://i.pinimg.com/564x/4a/7b/cc/4a7bccde40b4363271d18c8c4bb455e4.jpg',
+'Festival Drama Nusantara 2024',
+'2024-12-14',
+'For the first time!!! Suatu Ketika is hosting the #PestivalDramaNusantara2024 in collaboration with Bandung Regency. Make sure your school is part of this great history!',
+2
+),
+(
+'https://i.pinimg.com/564x/f4/8d/3b/f48d3b7a7e8266d09e1e67d2fc106a70.jpg',
+'Pandawa Beach Festival',
+'2024-12-01',
+'Join us for the Pandawa Beach Festival in Kutuh Village, happening from December 15 to 22! This exciting event showcases traditional art performances, live music, and a vibrant bazaar with delicious food from Bali.',
+3
+),
+(
+'https://i.pinimg.com/564x/8b/12/3a/8b123a92a428888e2535838cae3098cb.jpg',
+'Kangen Ambyar Festival 2024',
+'2024-12-08',
+'The Kangen Ambyar Festival 2024 is an exciting event that will delight music and culture fans! Here, you can enjoy performances from your favorite singers, savor delicious local cuisine, and feel the vibrant atmosphere with friends. Don’t miss the chance to celebrate love and nostalgia in this fun-filled festival!',
+5
+),
+(
+'https://i.pinimg.com/564x/7c/c4/8d/7cc48d749634f401c70366aec30deddd.jpg',
+'Semarang Merdeka Flower Festival',
+'2024-12-15',
+'Join us for the Semarang Merdeka Flower Festival, a vibrant celebration of beauty and creativity! This annual event features stunning floral displays, exciting performances, and delicious local food. It`s a perfect opportunity to enjoy a day out with family and friends while experiencing the rich culture of Semarang.',
+7
 );
